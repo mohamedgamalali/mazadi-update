@@ -1,57 +1,23 @@
 const express      = require('express');
 const {body}       = require('express-validator');
-const session = require('express-session');
-const flash = require('connect-flash')
-const MongoDBStore = require('connect-mongodb-session')(session);
-const bodyParser = require('body-parser');
-const path      = require('path');
-const router  = express.Router();
-const csrf         = require('csurf');
 
-const isNotAuth = require('../meddleWere/isNotAuth');
+const router  = express.Router();
+
 const isAuth    = require('../meddleWere/isAuth');
 
 const adminController = require('../controllers/admin');
 
 
-
-const MONGODB_URI = process.env.MONGODB_URI ;
-
-
-
-  const store = new MongoDBStore({
-  uri: MONGODB_URI,
-  collection: 'sessions'
-});
-
-router.use(
-  session({
-    secret: 'my secret',
-    resave: false,
-    saveUninitialized: false,
-    store:store
-  })
-);
-
-
-
-router.use(flash());
-router.use(bodyParser.urlencoded({ extended: false }));
-//csrf Proticyion
-const csrfProtection = csrf();
-
-router.use(csrfProtection);
-router.use((req,res,next)=>{
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
                                                       //routs
 
 
 //auth
-router.get('/login',isNotAuth,adminController.getLogin);
-router.post('/login',isNotAuth,adminController.postLogin);
-router.get('/logout',isAuth,adminController.getlogOut);
+router.post('/login',[
+  body('email')
+  .not().isEmpty(),
+  body('password')
+  .not().isEmpty()
+],adminController.postLogin);                              //REST API
 
 //admin pid manage
 
