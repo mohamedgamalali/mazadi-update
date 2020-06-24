@@ -25,15 +25,18 @@ router.post('/start',isAuth,adminController.postStart);
 router.post('/end',isAuth,adminController.postEnd);
 
 //admin
-router.get('',isAuth,adminController.getTest);
-router.get('/support/f&q',isAuth,adminController.getFaQ);
-router.post('/support/f&q',isAuth,[
+router.get('',isAuth,adminController.getTest);             //REST API
+router.get('/support/f&q',isAuth,adminController.getFaQ);  //REST API
+router.post('/support/f&q',isAuth,[                        //REST API
   body('answer')
   .not().isEmpty(),
   body('ask')
   .not().isEmpty()
 ],adminController.postFaQ);
-router.post('/AQ/delete',isAuth,adminController.deleteFaQ);
+router.post('/AQ/delete',isAuth,[                        //REST API
+  body('id')
+  .not().isEmpty()
+],adminController.deleteFaQ);           
 router.post('/approve/:type',isAuth,adminController.postApprove);
 router.post('/disapprove/:type',isAuth,adminController.postdisApprove);
 router.post('/support',isAuth,[
@@ -51,7 +54,7 @@ router.post('/support/catigory/edit',isAuth,[
   body('name') 
   .not().isEmpty()
 ],adminController.postEditCat);
-router.get('/support',isAuth,adminController.getSupport);
+router.get('/support',isAuth,adminController.getSupport);           //REST API
 router.get('/catigory',isAuth,adminController.getCatigory);
 router.get('/support/:id',isAuth,adminController.getSingleSupport);
 router.get('/approve',isAuth,adminController.getApprove);

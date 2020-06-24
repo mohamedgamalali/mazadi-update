@@ -148,12 +148,15 @@ exports.getSupport = async (req, res, next) => {
   try {
     const supportMessages = await SupportMessages.find({
       answer: false,
-    }).populate("user");
-    const answerd = await SupportMessages.find({ answer: true }).populate(
-      "user"
-    );
-    res.render("support", {
-      pageName: "الدعم",
+    })
+    .populate({
+        path: 'user', select: 'name email mobile'
+    });
+    const answerd = await SupportMessages.find({ answer: true })  
+    .populate({
+        path: 'user', select: 'name email mobile'
+    });
+    res.status(200).json({
       supportMessages: supportMessages,
       answerd: answerd,
     });
@@ -167,18 +170,9 @@ exports.getSupport = async (req, res, next) => {
 
 exports.getFaQ = async (req, res, next) => {
   try {
-    let message = req.flash("error");
-    if (message.length > 0) {
-      message = message[0];
-    } else {
-      message = null;
-    }
     const fAQ = await FaQ.find({});
-    res.render("F&Q", {
-      pageName: "الاسئله والاجوبه",
-      fAQ: fAQ,
-      error: message,
-      count: 1,
+    res.status(200).json({
+      fAQ: fAQ
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -217,16 +211,22 @@ exports.postFaQ = async (req, res, next) => {
   const answer = req.body.answer;
   try {
     if (!errors.isEmpty()) {
-      req.flash("error", "يجب ادخال السؤال والاجابه!!");
-      return res.redirect("/admin/support/f&q");
-    }
+        const error = new Error("validation faild");
+        error.statusCode = 422;
+        error.data = errors.array();
+        throw error;
+      }
 
     const fAQ = new FaQ({
       ask: ask,
       answer: answer,
     });
     await fAQ.save();
-    return res.redirect("/admin/support/f&q");
+    res.status(201).json({
+        state:1,
+        messaage:'Q&A created',
+        FAQ:fAQ
+    })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -237,10 +237,23 @@ exports.postFaQ = async (req, res, next) => {
 
 exports.deleteFaQ = async (req, res, next) => {
   const id = req.body.id;
-  try {
-    const q = await FaQ.findByIdAndDelete(id);
+  const errors = validationResult(req);
 
-    return res.redirect("/admin/support/f&q");
+  try {
+    if (!errors.isEmpty()) {
+        const error = new Error("validation faild");
+        error.statusCode = 422;
+        error.data = errors.array();
+        throw error;
+      }
+    
+      await FaQ.deleteMany({_id: {
+        $in: id
+      }});
+    res.status(201).json({
+        state:1,
+        message:'Q&A deleted.'
+    })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
