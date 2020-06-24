@@ -1,0 +1,47 @@
+<%- include('./includes/head.ejs') %>
+
+<div class="row">
+<div class="col-md-12">
+    <div class="row">
+        <%if(error){%>
+            <div class="col-md-12 col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-title"></p>
+                        <div class="alert alert-danger" role="alert"><%=error%></div>
+                    </div>
+                </div>
+        <%}%>
+        
+        <div class="col-md-12">
+            <div class="card">
+                <h5 class="card-header">ارسل رد</h5>
+                <div class="card-body">
+                    <h4><%=userName%></h4>
+                    <h5>المنتج:</h5>
+                    <p class="card-text"><%=product%></p>
+                    <img src="/<%=img%>" alt="">
+                    <h5>السعر المطلوب:</h5>
+                    <p><%=(price*5)/100%></p>
+                </div>
+                <br>
+                <hr width="100%">
+                <br>
+                <div class="card-body">
+                    <h5>الرد</h5>
+                    <form action="/admin/pay/send/<%=action%>" method="POST">
+                        <textarea name="answer" cols="150" rows="10" required></textarea>
+                        <input type="hidden" name="id" value="<%=id%>">
+                </div>
+                <div class="card-footer text-left">
+                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+                    
+                        <button class="btn btn-primary" type="submit">ارسل</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<%- include('./includes/end.ejs') %>

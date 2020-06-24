@@ -1,0 +1,86 @@
+<%- include('./includes/head.ejs') %>
+
+
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="page-title">
+                        <h3>Products</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <div class="card">
+                                <div class="card-header">Products Needs to approve</div>
+                                <div class="card-body">
+                                  <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                            <th>user</th>
+                                            <th>Type</th>
+                                            <th>Production</th>
+                                            <th>Size</th>
+                                            <th>sex</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <%products.forEach(p=>{%>
+                                                <tr>
+                                                    <%if(p.user){%>
+                                                    <td><%=p.user.name%></td>
+                                                    <%}else{%>
+                                                        <td>user not found</td>
+                                                    <%}%>
+                                                    <td><%=p.Type%></td>
+                                                    <td><%=p.production%></td>
+                                                    <td><%=p.size%></td>
+                                                    <td><%=p.sex%>
+                                                    <td> <a href="/admin/singleProduct/<%=p._id%>">more details..</a></td>
+                                                </tr>
+                                            <%})%>
+                                        </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 col-lg-12">
+                            <div class="card">
+                                <div class="card-header">Products Requests need approve</div>
+                                <div class="card-body">
+                                  <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>title</th>
+                                            <th>Min Price</th>
+                                            <th>Max Price</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <%askProduct.forEach(p=>{%>
+                                                <tr>
+                                                    <%if(p.user){%>
+                                                        <td><%=p.user.name%></td>
+                                                        <%}else{%>
+                                                            <td>user not found</td>
+                                                        <%}%>
+                                                    <td><%=p.desc%></td>
+                                                    <td><%=p.amount%></td>
+                                                    <td><%=p.color%></td>
+                                                    <td> <a href="/admin/singleAsk/<%=p._id%>">more details..</a></td>
+                                                </tr>
+                                            <%})%>
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>      
+            
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('./includes/end.ejs') %>

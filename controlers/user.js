@@ -1,0 +1,406 @@
+const {validationResult} = require('express-validator');
+const validatePhoneNumber = require('validate-phone-number-node-js');
+
+const Product = require('../models/products');
+const User = require('../models/user');
+const Catigory = require('../models/catigory');
+const AskProduct = require('../models/askProduct');
+
+ 
+exports.postFev = async(req,res,next)=>{
+        const action = req.params.action;
+        const id     = req.params.id;
+        
+
+    try{
+            const user = await User.findById(req.userId);
+            
+            if(!user){
+                const error = new Error('User not Found');
+                error.statusCode = 404 ;
+                throw error ;
+            }
+            if(action==1){
+                const product = await Product.findById(id);
+                if(!product){
+                    const error = new Error('Product not Found');
+                    error.statusCode = 404 ;
+                    throw error ;
+                }
+                if(user.fevProducts.length > 0 ){
+                    user.fevProducts.forEach(element => {
+                        if(element==id){
+                            const error = new Error('product allready exists!!');
+                            error.statusCode = 401 ;
+                            throw error ;
+                        }
+                    });
+                }
+                user.fevProducts.push(id);
+                const newUser = await user.save();
+            }
+            if(action==2){
+                const product = await AskProduct.findById(id);
+                if(!product){
+                    const error = new Error('Product not Found');
+                    error.statusCode = 404 ;
+                    throw error ;
+                }
+                if(user.fevProducts.length > 0 ){
+                    user.fevAskProduct.forEach(element => {
+                        if(element==id){
+                            const error = new Error('product allready exists!!');
+                            error.statusCode = 401 ;
+                            throw error ;
+                        }
+                    });
+                }
+                user.fevAskProduct.push(id);
+                const newUser = await user.save();
+            }
+            res.status(201).json({state:1,message:"product added to fev successfully!!"});
+
+        }catch(err){
+            if(!err.statusCode){
+                err.statusCode = 500;
+            }
+            next(err);
+        }
+};
+
+
+
+exports.deleteFev = async(req,res,next)=>{
+    const action = req.params.action;
+    const id     = req.params.id;
+    
+try{
+         const user = await User.findById(req.userId);
+            
+            if(!user){
+                const error = new Error('User not Found');
+                error.statusCode = 404 ;
+                throw error ;
+            }
+            if(action==1){
+                const product = await Product.findById(id);
+                if(!product){
+                    const error = new Error('Product not Found');
+                    error.statusCode = 404 ;
+                    throw error ;
+                }
+                user.fevProducts.pull(id);    
+            }
+            if(action==2){
+                const product = await AskProduct.findById(id);
+                if(!product){
+                    const error = new Error('Product not Found');
+                    error.statusCode = 404 ;
+                    throw error ;
+                }
+                
+                user.fevAskProduct.pull(id);
+            }
+            await user.save();
+            res.status(201).json({state:1,message:"product fev deleted successfully!!"});
+
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+
+exports.getProfile = async(req,res,next)=>{
+    const profileId = req.params.id;
+
+try{
+    let user ,flag;
+    if(profileId == req.userId){
+        flag='owner';
+
+        user = await User.findById(profileId)
+        .select('name')
+        .select('mobile')
+        .select('email');
+
+        if(!user){
+            const error = new Error('User not Found');
+            error.statusCode = 404 ;
+            throw error ;
+        }
+
+    }else{
+        flag='visitor';
+        user = await User.findById(profileId)
+        .select('name')
+        .select('mobile')
+        .select('email');
+        if(!user){
+            const error = new Error('User not Found');
+            error.statusCode = 404 ;
+            throw error ;
+        }
+    }  
+
+    res.status(200).json({state:1,profileState:flag,user:user});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+
+exports.putEditProfile = async(req,res,next)=>{
+    const errors         = validationResult(req);
+    
+    const email          = req.body.email;
+    const mobile         = req.body.mobile;
+    const name           = req.body.name;
+
+    const validMobile    = validatePhoneNumber.validate(mobile);
+    
+try{
+    if(!errors.isEmpty()){
+        const error = new Error('validation faild');
+        error.statusCode = 422 ;
+        error.data = errors.array();
+        throw error ; 
+    }
+    
+    const user = await User.findById(req.userId);
+    if(!user){
+        const error = new Error('user not found');
+        error.statusCode = 404 ;
+        throw error ; 
+    }
+    if(user.email!==email){  
+        const checkUser = await User.findOne({email:email});
+        if(checkUser){
+            const error = new Error('invalid email allready taken');
+            error.statusCode = 422;
+            throw error;
+        }
+        //send verification email first
+        user.email = email ;
+    }
+    if(user.mobile!==mobile){
+        if(!validMobile){
+            const error = new Error('invalid mobile number!!');
+            error.statusCode = 422;
+            throw error;
+        }
+        user.mobile = mobile ;
+    }
+    if(user.name!==name){
+        user.name = name ;
+    }  
+        const newUser = await user.save();
+        res.status(201).json({state:1,user:newUser}); 
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+exports.getMyBids = async(req,res,next)=>{
+
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    let userAfterPaginate = [] ;
+    let count = 0 ;
+try{
+    const user = await User.findById(req.userId).select('pids.product').populate('pids.product');
+    let totalBids = user.pids.length;
+    if(!user){
+        const error = new Error('user not found');
+        error.statusCode = 404 ;
+        throw error ; 
+    }
+    let start = (page-1)*productPerPage ;
+    let c = 0;
+    for( count = start;count<user.pids.length;count++){
+        if(c<productPerPage){
+            if(user.pids[count].product!=null){
+                userAfterPaginate.push({
+                    approve:user.pids[count].product.approve,
+                    imageUrl:user.pids[count].product.imageUrl,
+                    desc:user.pids[count].product.desc,
+                    _id:user.pids[count].product._id,
+                    price:user.pids[count].product.price,
+                    TotalPid:user.pids[count].product.TotalPid
+                });
+            }else{
+                totalBids-- ; 
+            }
+            c++;
+        }else{
+            break;
+        }
+    }
+    res.status(200).json({state:1,myBeds:userAfterPaginate,totalBids:totalBids});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+
+exports.getMyProducts = async(req,res,next)=>{
+
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    let userAfterPaginate = [] ;
+    let count = 0 ;
+try{
+    const user = await User.findById(req.userId).select('postedProducts').populate('postedProducts');
+    let totalBids = user.postedProducts.length;
+    if(!user){
+        const error = new Error('user not found');
+        error.statusCode = 404 ;
+        throw error ; 
+    }
+    let start = (page-1)*productPerPage ;
+    let c = 0;
+    for( count = start;count<user.postedProducts.length;count++){
+        if(c<productPerPage){
+            if(user.postedProducts[count]!=null){
+                userAfterPaginate.push({
+                    approve:user.postedProducts[count].approve,
+                    imageUrl:user.postedProducts[count].imageUrl,
+                    desc:user.postedProducts[count].desc,
+                    _id:user.postedProducts[count]._id,
+                    TotalPid:user.postedProducts[count].TotalPid,
+                    price:user.postedProducts[count].price
+                });
+            }else{
+                totalBids--;
+            }
+            c++;
+        }else{
+            break;
+        }
+    }
+    res.status(200).json({state:1,myProducts:userAfterPaginate,totalProducts:totalBids});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+exports.getMyAskProducts = async(req,res,next)=>{
+
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+try{
+    const totalAskProduct = await AskProduct.find({user:req.userId}).countDocuments();
+    const askProduct = await AskProduct.find({user:req.userId})
+    .select('desc')
+    .select('approve')
+    .skip((page-1)*productPerPage)
+    .limit(productPerPage);
+    
+    
+    res.status(200).json({state:1,myProducts:askProduct,totalProducts:totalAskProduct});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+
+exports.getFev = async(req,res,next)=>{
+
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    let userProducts = [] ;
+try{
+    const user = await User.findById(req.userId)
+    .select('fevProducts')
+    .populate('fevProducts');
+    if(!user){
+        const error = new Error('user not found');
+        error.statusCode = 404 ;
+        throw error ; 
+    }
+    let totalFevProducts = user.fevProducts.length;
+    let start = (page-1)*productPerPage ;
+    let c = 0;
+    let count = 0 ;
+    for( count = start;count<totalFevProducts;count++){
+        if(c<productPerPage){
+            if(user.fevProducts[count]!=null){
+                userProducts.push({
+                    imageUrl:user.fevProducts[count].imageUrl,
+                    desc:user.fevProducts[count].desc,
+                    approve:user.fevProducts[count].approve,
+                    _id:user.fevProducts[count]._id,
+                    price:user.fevProducts[count].price,
+                    TotalPid:user.fevProducts[count].TotalPid
+                });
+            }else{
+                totalFevProducts--;
+            }
+            c++;
+        }else{
+            break;
+        }
+    }
+    res.status(200).json({state:1,myFevProducts:userProducts,totalProducts:totalFevProducts});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+
+exports.getNotification = async(req,res,next)=>{
+    const page = req.query.page || 1 ;
+    const itemBerPage = 10 ;
+    let userNotfi = [] ;
+try{
+    const user = await User.findById(req.userId);
+    if(!user){
+        const error = new Error('user not found');
+        error.statusCode = 404 ;
+        throw error ; 
+    }
+    const totalNotfi = user.notfications.length;
+    let start = totalNotfi - (page-1)*itemBerPage ;
+    
+    
+
+    let c = 0;
+    let count = 0 ;
+    for( count = start-1 ; count>=0 ;count--){
+        if(c<itemBerPage){
+            userNotfi.push({
+                notfication:user.notfications[count],
+            });
+            c++;
+        }else{
+            break;
+        }
+    }
+    res.status(200).json({state:1,Notifications:userNotfi,totalNotfi:totalNotfi});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};

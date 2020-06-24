@@ -1,0 +1,169 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>المزادات</title>
+
+    <link href="/vendor/bootstrap4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/DataTables/datatables.min.css" rel="stylesheet">
+    <link href="/css/master.css" rel="stylesheet">
+    <style>
+        td { width: 15% ;}
+        
+        img{
+            width:100%;
+            max-width:600px;
+        }
+   
+    </style>
+    <script>
+        (function(window, location) {
+    history.replaceState(null, document.title, location.pathname+"#!/history");
+    history.pushState(null, document.title, location.pathname);
+    
+    window.addEventListener("popstate", function() {
+      if(location.hash === "#!/history") {
+        history.replaceState(null, document.title, location.pathname);
+        setTimeout(function(){
+          location.replace("/admin");
+        },10);
+      }
+    }, false);
+    }(window, location));
+    </script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav id="sidebar" class="active">
+            <div class="sidebar-header">
+                <img src="/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="/admin"><i class="fas fa-home"></i> الرئيسيه</a>
+                </li>
+                
+                <li>
+                    <a href="/admin/products"><i class="fas fa-gavel"></i> المزادات</a>
+                </li>
+                
+                <li>
+                    <a href="/admin/orders"><i class="fas fa-tasks"></i> الطلبات</a>
+                </li>
+
+                <li>
+                    <a href="/admin/lost"><i class="fas fa-exclamation-circle"></i> المفقودات والمعثورات</a>
+                </li>
+
+                <li>
+                    <a href="/admin/catigory"><i class="fas fa-file-alt"></i> الاقسام</a>
+                </li>
+
+                <li>
+                    <a href="/admin/users"><i class="fas fa-user-friends"></i>المستخدمون</a>
+                </li>
+                <li>
+                    <a href="/admin/pay"><i class="fas fa-money-bill-alt"></i>الدفع</a>
+                </li>
+                <li>
+                    <a href="/admin/support/f&q"><i class="fas fa-file-alt"></i>الاسئله والاجوبه</a>
+                </li>
+                <li>
+                    <a href="/admin/Ads"><i class="fas fa-ad"></i> الاعلانات</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="body" class="active">
+            <nav class="navbar navbar-expand-lg navbar-primary bg-primary">
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-light default-light-menu"><i class="fas fa-bars"></i><span></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        
+                        <li class="nav-item dropdown">
+                            <div class="nav-dropdown">
+                                <a href="" class="nav-item nav-link dropdown-toggle" data-toggle="dropdown"><i class="fas fa-user"></i> <span>admin</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i></a>
+                                <div class="dropdown-menu dropdown-menu-right nav-link-menu">
+                                    <ul class="nav-list">
+                                        <li><a href="/admin/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="page-title">
+                        <h3>الطلبات</h3>
+                    </div>
+                    <div class="row">
+                       
+                        <div class="col-md-12 col-lg-12">
+                            <div class="card">
+                                <div class="card-header">معروضات</div>
+                                <div class="card-body">
+                                    <p class="card-title"></p>
+                                    <table class="table table-hover" id="dataTables-example" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>المستخدم</th>
+                                                <th>البريد الالكتروني</th>
+                                                <th>الوصف</th>
+                                                <th>العدد</th>
+                                                <th>النوع</th>
+                                                <th>العروض</th>
+                                                <th>الحاله</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                           <%products.forEach(m=>{%>
+                                                <tr>
+                                                    <td><%=m.user.name%></td>
+                                                    <td><%=m.user.email%></td>
+                                                    <td><%=m.desc%></td>
+                                                    <td><%=m.amount%></td>
+                                                    <td><%=m.catigory.name%></td>
+                                                    <td><%=m.Bids.length%></td>
+                                                    <%if(m.ended==true && m.pay==false){%>
+                                                        <th>انتهي ولم يتم الدفع</th>
+                                                    <%}if(m.ended==false){%>
+                                                        <th>لم ينتهي </th>
+                                                    <%}if(m.ended==true && m.pay==true){%>
+                                                        <th>انتهي وتم الدفع </th>
+                                                    <%}%>
+                                                    <td><a href="/admin/singleAsk/<%=m._id%>">اضغط للمزيد</a></td>
+                                                </tr>
+                                            <%})%>
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/vendor/jquery3/jquery-3.4.1.min.js"></script>
+    <script src="/vendor/bootstrap4/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/DataTables/datatables.min.js"></script>
+    <script src="/vendor/fontawesome5/js/solid.min.js"></script>
+    <script src="/vendor/fontawesome5/js/fontawesome.min.js"></script>
+    <script src="/js/initiate-datatables.js"></script>
+    <script src="/js/script.js"></script>
+
+</body>
+
+</html>

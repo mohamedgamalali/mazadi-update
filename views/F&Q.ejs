@@ -1,0 +1,64 @@
+<%- include('./includes/head.ejs') %>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <%if(error){%>
+                <div class="col-md-12 col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title"></p>
+                            <div class="alert alert-danger" role="alert"><%=error%></div>
+                        </div>
+                    </div>
+            <%}%>
+            
+            <div class="col-md-12">
+                <div class="card text-right">
+                    <h5 class="card-header">الاسئله والاجوبه</h5>
+                    <%if(fAQ.length==0){%>
+                        <div class="card-body">
+                            <h4>لا يوجد اسئله</h4>
+                        </div>    
+                    <%}else{%>
+                        <%fAQ.forEach(a=>{%>
+                            <div class="card-body">
+                                <h5><%=count++%>  سؤال</h5>
+                                <h3 class="card-text"><%=a.ask%></h3>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-text"><%=a.answer%></h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/admin/AQ/delete" method="POST">
+                                    <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+                                    <input type="hidden" name="id" value="<%=a._id%>">
+                                    <button type="submit" class="btn btn-danger">مسح</button>
+                                </form>
+                            </div>
+                            <br>
+                        <%})%>
+                    <%}%>
+                    
+                    <hr width="100%">
+                    <br>
+                    <div class="card-body ">
+                        <h5>اضف سؤال وجواب</h5><br>
+                        <form action="/admin/support/f&q" method="POST">
+                            <textarea name="ask" cols="150" rows="3" id="ask" placeholder="السؤال" required></textarea><br><br>
+                            
+                            <textarea name="answer" cols="150" rows="5" id="answer" placeholder="الاجابه"  required></textarea>
+                    </div>
+                    <div class="card-footer text-left">
+                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+
+                            <button class="btn btn-primary" type="submit">اضافه</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+<%- include('./includes/end.ejs') %>

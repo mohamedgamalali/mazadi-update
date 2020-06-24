@@ -1,0 +1,75 @@
+<%- include('./includes/head.ejs') %>
+<style>
+    img{
+    width:100%;
+    max-width:500px;
+}
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <%if(error){%>
+                <div class="col-md-12 col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title"></p>
+                            <div class="alert alert-danger" role="alert"><%=error%></div>
+                        </div>
+                    </div>
+            <%}%>
+            
+            <div class="col-md-12">
+                <div class="card text-right">
+                    <h5 class="card-header">الاقسام</h5>
+                    <%if(catigory.length==0){%>
+                        <div class="card-body">
+                            <h4> لا يوجد اقسام!!</h4>
+                        </div>    
+                    <%}else{%>
+                        <%catigory.forEach(a=>{%>
+                            <div class="card-body">
+                                <h5 class="card-text"><%=count++%> - <%=a.name%></h5>
+                            </div>
+                            <div class="card-body">
+                                <img src="/<%=a.imageUrl%>" alt="<%=a.name%>">
+                                <h5 class="card-text"></h5>
+                                    <button class="btn btn-primary" value="<%=count%>" type="button" onclick="editButton(this)">تعديل <span class="fas fa-cog"></span></button>
+                                <form id="editForm<%=count%>" class="card-body text-left hide" action="/admin/support/catigory/edit" method="POST" enctype="multipart/form-data">
+                                    <input type="text" value="<%=a.name%>" name="name" required>
+                                    <input type="file" id="image" name="image" >
+                                    <input type="hidden" name="id" value="<%=a._id%>">
+                                    <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+                                    <button type="submit" class="btn btn-danger">حفظ التعديلات</button>
+                                </form>
+                            </div>
+                            <br>
+                            <hr width="100%">
+                        <%})%>
+                    <%}%>
+                    
+                    <hr width="100%">
+                    <br>
+                    <div class="card-body ">
+                        <h5>اضف قسم</h5><br>
+                        <form action="/admin/support/catigory"  method="POST" enctype="multipart/form-data">
+                            <input type="text" placeholder="السم القسم" name="name" required>
+                    </div>
+                    <div class="card-body ">
+                        <label for="image">صوره القسم</label>
+                </div>
+                    <div class="card-body ">
+                            <input type="file" id="image" name="image" required>
+                    </div>
+                    <div class="card-footer text-left">
+                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+
+                            <button class="btn btn-primary" type="submit">اضافه</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+<%- include('./includes/end.ejs') %>

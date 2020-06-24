@@ -1,0 +1,202 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title><%=pageName%></title>
+
+    <link href="/vendor/bootstrap4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/master.css" rel="stylesheet">
+    <link href="/vendor/chartsjs/Chart.min.css" rel="stylesheet">
+    <link href="/vendor/flagiconcss3/css/flag-icon.min.css" rel="stylesheet">
+    <style>
+        img{
+            width:100%;
+            max-width:600px;
+        }
+    </style>
+    <script>
+        (function(window, location) {
+    history.replaceState(null, document.title, location.pathname+"#!/history");
+    history.pushState(null, document.title, location.pathname);
+    
+    window.addEventListener("popstate", function() {
+      if(location.hash === "#!/history") {
+        history.replaceState(null, document.title, location.pathname);
+        setTimeout(function(){
+          location.replace("/admin");
+        },10);
+      }
+    }, false);
+    }(window, location));
+    </script>
+</head>
+
+<body >
+    <div class="wrapper">
+        <nav id="sidebar" class="active">
+            <div class="sidebar-header">
+                <img src="/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="/admin"><i class="fas fa-home"></i> الرئيسيه</a>
+                </li>
+                
+                <li>
+                    <a href="/admin/products"><i class="fas fa-gavel"></i> المزادات</a>
+                </li>
+                
+                <li>
+                    <a href="/admin/orders"><i class="fas fa-tasks"></i> الطلبات</a>
+                </li>
+
+                <li>
+                    <a href="/admin/lost"><i class="fas fa-exclamation-circle"></i> المفقودات والمعثورات</a>
+                </li>
+
+                <li>
+                    <a href="/admin/catigory"><i class="fas fa-file-alt"></i> الاقسام</a>
+                </li>
+
+                <li>
+                    <a href="/admin/users"><i class="fas fa-user-friends"></i>المستخدمون</a>
+                </li>
+
+                <li>
+                    <a href="/admin/pay"><i class="fas fa-money-bill-alt"></i>الدفع</a>
+                </li>
+
+                <li>
+                    <a href="/admin/support/f&q"><i class="fas fa-file-alt"></i>الاسئله والاجوبه</a>
+                </li>
+                <li>
+                    <a href="/admin/Ads"><i class="fas fa-ad"></i> الاعلانات</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="body" class="active">
+            <nav class="navbar navbar-expand-lg navbar-primary bg-primary">
+                <button type="button" id="sidebarCollapse" class="btn btn-outline-light default-light-menu"><i class="fas fa-bars"></i><span></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        
+                        <li class="nav-item dropdown">
+                            <div class="nav-dropdown">
+                                <a href="" class="nav-item nav-link dropdown-toggle" data-toggle="dropdown"><i class="fas fa-user"></i> <span>admin</span> <i style="font-size: .8em;" class="fas fa-caret-down"></i></a>
+                                <div class="dropdown-menu dropdown-menu-right nav-link-menu">
+                                    <ul class="nav-list">
+                                        <li><a href="/admin/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+<div class="content>
+    <div class="container-fluid">
+        <div class="page-title">
+            <h3></h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">منتج</div>
+                    <div class="card-body"> 
+                            <div class="form-group">
+                                <img src="/<%=product.imageUrl%>" alt="">
+                            </div><br>
+                            <video width="320" height="240" controls>
+                                <source src="/<%=product.vidUrl%>" type="video/mp4">
+                                <source src="/<%=product.vidUrl%>" type="video/ogg">
+                              </video> 
+                            <div class="form-group">  
+                                <h3>:الصحة</h3>
+                                <h5><%=product.helth%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>العدد:</h3>
+                                <h5><%=product.amount%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>اللون:</h3>
+                                <h5><%=product.color%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>العمر:</h3>
+                                <h5><%=product.age%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>الوصف:</h3>
+                                <h5><%=product.desc%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>النوع:</h3>
+                                <h5><%=product.catigory.name%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>اسم المالك:</h3>
+                                <%if(product.user){%>
+                                    <h5><%=product.user.name%></h5>
+                                <%}else{%>
+                                    <h5>user not found</h5>
+                                <%}%>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>الانتاج:</h3>
+                                <h5><%=product.production%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>الحجم:</h3>
+                                <h5><%=product.size%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>الجنس:</h3>
+                                <h5><%=product.sex%></h5>
+                            </div><br>
+                            <div class="form-group">  
+                                <h3>السعر:</h3>
+                                <h5><%=product.price%></h5>
+                            </div><br>
+                            
+                                <%if(product.approve==='binding'){%>
+                                    <form accept-charset="utf-8" action="/admin/approve/1" method="POST">
+                                    <div class="form-group" >       
+                                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+
+                                        <button type="submit" class="btn btn-primary">الموافقه</button> 
+                                        <input type="hidden" name="id" value="<%=product._id%>">
+                                    </div>
+                                    </form>
+                                    <form accept-charset="utf-8" action="/admin/disapprove/1" method="POST">
+                                    <div class="form-group">       
+                                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+                    
+                                        <button type="submit" class="btn btn-danger">عدم الموافقه</button> 
+                                        <input type="hidden" name="id" value="<%=product._id%>">
+                                    </div>
+                                </form>
+                                <%}%>     
+
+                                <%if(product.approve!='binding'&&product.pay==false){%>
+                                    <form accept-charset="utf-8" action="/admin/delete/1" method="POST">
+                                    <div class="form-group">       
+                                        <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+                    
+                                        <button type="submit" class="btn btn-danger">حذف</button> 
+                                        <input type="hidden" name="id" value="<%=product._id%>">
+                                    </div>
+                                </form>
+                                <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                       
+    <%- include('./includes/end.ejs') %>
