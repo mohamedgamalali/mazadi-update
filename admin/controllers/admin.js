@@ -405,12 +405,17 @@ exports.getSingleProduct = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await Products.findById(id)
-      .populate("user")
-      .populate("catigory");
-    res.render("singleProd", {
-      pageName: "منتج",
-      product: product,
-    });
+      .populate({path:"user",select:'name mobile email'})
+      .populate({path:"catigory",select:'name'});
+      if(!product){
+        const error = new Error("product not found");
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        state:1,
+        product:product
+      })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -549,13 +554,19 @@ exports.getSingleAsk = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await AskProduct.findById(id)
-      .populate("user")
-      .populate("catigory");
+      .populate({path:'user',select:'name mobile email'})
+      .populate({path:'catigory',select:'name'});
+      if(!product){
+        const error = new Error("order not found");
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        state:1,
+        product:product
+      })
 
-    res.render("singleAskProd", {
-      pageName: "الموافقه",
-      product: product,
-    });
+    
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -591,14 +602,52 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const orders = await AskProduct.find({ approve: "approved" })
-      .populate("user")
-      .populate("catigory");
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    const filter = req.query.filter || 1 ;                            //1=>approved//2=>disapproved//3=>need approve
+    let products;
+    let totalProducts;
+    if(filter==1){
+      
+      totalProducts = await AskProduct.find({ approve: "approved" })
+      .countDocuments();
 
-    res.render("orders", {
-      pageName: "الطلبات",
-      products: orders,
+      products = await AskProduct.find({ approve: "approved" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .select('user desc city catigory')
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }else if(filter==2){
+
+      totalProducts = await AskProduct.find({ approve: "disapprove" })
+      .countDocuments();
+
+      products = await AskProduct.find({ approve: "disapprove" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .select('user desc city catigory')
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }else if(filter==3){
+
+      totalProducts = await AskProduct.find({ approve: "binding" })
+      .countDocuments();
+
+      products = await AskProduct.find({ approve: "binding" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .select('user desc city catigory')
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }
+    
+    res.status(200).json({
+      totalProducts:totalProducts,
+      products: products
     });
   } catch (err) {
     if (!err.statusCode) {

@@ -57,10 +57,10 @@ router.post('/support/catigory/edit',isAuth,[
 router.get('/support',isAuth,adminController.getSupport);           //REST API
 router.get('/catigory',isAuth,adminController.getCatigory);
 router.get('/support/:id',isAuth,adminController.getSingleSupport);
-router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);
-router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);
-router.get('/products',isAuth,adminController.getProducts);
-router.get('/orders',isAuth,adminController.getOrders);
+router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);  //REST API
+router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);        //REST API
+router.get('/products',isAuth,adminController.getProducts);        //REST API
+router.get('/orders',isAuth,adminController.getOrders);           //REST API
 router.get('/users',isAuth,adminController.getUsers);
 router.post('/delete/:type',isAuth,adminController.postDelete);
 router.get('/Ads',isAuth,adminController.getAds);

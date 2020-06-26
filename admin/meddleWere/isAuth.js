@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-const privateKey = process.env.ADMIN_JWT_PRIVATE_KEY;
 
 module.exports = (req,res,next)=>{
     
@@ -15,7 +14,7 @@ module.exports = (req,res,next)=>{
       
       let decodedToken;
 
-        decodedToken = jwt.verify(token,privateKey);
+        decodedToken = jwt.verify(token,process.env.ADMIN_JWT_PRIVATE_KEY);
 
         if(!decodedToken){
             const error = new Error('not Authorized!!');
