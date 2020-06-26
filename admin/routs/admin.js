@@ -37,7 +37,7 @@ router.post('/AQ/delete',isAuth,[                        //REST API
   body('id')
   .not().isEmpty()
 ],adminController.deleteFaQ);           
-router.post('/approve/:type',isAuth,adminController.postApprove);
+router.post('/approve/:type',isAuth,adminController.postApprove); //REST API
 router.post('/disapprove/:type',isAuth,adminController.postdisApprove);
 router.post('/support',isAuth,[
     body('answer')
@@ -57,7 +57,6 @@ router.post('/support/catigory/edit',isAuth,[
 router.get('/support',isAuth,adminController.getSupport);           //REST API
 router.get('/catigory',isAuth,adminController.getCatigory);
 router.get('/support/:id',isAuth,adminController.getSingleSupport);
-router.get('/approve',isAuth,adminController.getApprove);
 router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);
 router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);
 router.get('/products',isAuth,adminController.getProducts);

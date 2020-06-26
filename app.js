@@ -9,17 +9,10 @@ require('dotenv').config();
 
 const app       = express(); 
 
-const bidManage = require('./helpers/bid-manage');
-const time = require('./helpers/time');
-
 
 const MONGODB_URI = process.env.MONGODB_URI ;
 
 const port      = process.env.PORT || 8080  ;
-
-  app.set('view engine', 'ejs');
-  app.set('views', 'views');
-  app.use(express.static(path.join(__dirname, 'public')));
 
   //multer
   const fileStorage = multer.diskStorage({

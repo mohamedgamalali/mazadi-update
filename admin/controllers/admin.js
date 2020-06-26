@@ -401,29 +401,6 @@ exports.postEditCat = async (req, res, next) => {
   }
 };
 
-exports.getApprove = async (req, res, next) => {
-  try {
-    const products = await Products.find({ approve: "binding" }).populate(
-      "user"
-    );
-
-    const askProduct = await AskProduct.find({ approve: "binding" }).populate(
-      "user"
-    );
-
-    res.render("approve", {
-      pageName: "approve",
-      products: products,
-      askProduct: askProduct,
-    });
-  } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  }
-};
-
 exports.getSingleProduct = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -476,7 +453,7 @@ exports.postApprove = async (req, res, next) => {
         };
       }
     }
-    if (action == 2) {
+    else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
       body = {
         id: product._id.toString(),
@@ -487,15 +464,22 @@ exports.postApprove = async (req, res, next) => {
         title: `تمت الموافقة على منتجك  `,
         body: "يمكنك اﻵن استقبال العروض لطلبك",
       };
+    }else{
+        const error = new Error("invalid param input!!");
+        error.statusCode = 422;
+        throw error;
     }
 
     product.approve = "approved";
-    const newProduct = await product.save();
+    await product.save();
     const n = await sendNotfication.send(product.user.FCMJwt, body, notfi, [
       product.user._id,
     ]);
 
-    res.redirect("/admin/approve");
+    res.status(201).json({
+      state:1,
+      message:'approved sucsessfully'
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -616,14 +600,49 @@ exports.getOrders = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const products = await Products.find({ approve: "approved" })
-      .populate("user")
-      .populate("catigory");
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    const filter = req.query.filter || 1 ;                            //1=>approved//2=>disapproved//3=>need approve
+    let products;
+    let totalProducts;
+    if(filter==1){
+      
+      totalProducts = await Products.find({ approve: "approved" })
+      .countDocuments();
 
-    res.render("products", {
-      pageName: "المزادات",
-      products: products,
+      products = await Products.find({ approve: "approved" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }else if(filter==2){
+
+      totalProducts = await Products.find({ approve: "disapprove" })
+      .countDocuments();
+
+      products = await Products.find({ approve: "disapprove" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }else if(filter==3){
+
+      totalProducts = await Products.find({ approve: "binding" })
+      .countDocuments();
+
+      products = await Products.find({ approve: "binding" })
+      .populate({path:'user',select:'name email mobile'})
+      .populate({path:'catigory',select:'name'})
+      .skip((page-1)*productPerPage)
+      .limit(productPerPage);
+
+    }
+    
+    res.status(200).json({
+      totalProducts:totalProducts,
+      products: products
     });
   } catch (err) {
     if (!err.statusCode) {
