@@ -72,18 +72,7 @@ exports.endBid = async ()=>{
                 };
                 const n = sendNotfication.send(p.user.FCMJwt,Sbody,Snotfi,[p.user._id]);
             }
-            if(p.lastPid){
-                const newBody = {
-                    id: p._id.toString(),
-                    key:'2',
-                    data:'تهانينا لقد فذت بالمزاد'
-                };
-                const newNotfi= {
-                    title:`تهانينا لقد فزت بالمزاد`,
-                    body:'انتظر حتي يتواصل معك البائغ'
-                };
-                const newN = sendNotfication.send(p.lastPid.FCMJwt,newBody,newNotfi,[p.lastPid._id]);
-            }
+            
             p.endtBid();
             
         });

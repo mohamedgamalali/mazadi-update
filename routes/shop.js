@@ -24,6 +24,8 @@ router.post('/order/delete',[
 
 router.get('/getProducts/:catigoryId',isAuth,shopController.getProducts); //catigoryId?page='+page
 
+router.get('/products/all',shopController.getAllProducts); 
+
 router.get('/getCatigory',shopController.getCatigory); 
 
 router.get('/getSingleProduct/:id',isAuth,shopController.getSingleProduct); 

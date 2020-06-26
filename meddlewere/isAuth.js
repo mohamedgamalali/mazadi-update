@@ -4,6 +4,7 @@ const privateKey = process.env.JWT_PRIVATE_KEY;
 const User = require('../models/user');
 
 module.exports = async (req,res,next)=>{
+    try{
     const authHeader = req.get('Authorization');
     if(!authHeader){
         const error = new Error('not Authorized!!');
@@ -13,7 +14,7 @@ module.exports = async (req,res,next)=>{
     const token =req.get('Authorization').split(' ')[1];
     
     let decodedToken;
-    try{
+    
 
         decodedToken = jwt.verify(token,privateKey);
 

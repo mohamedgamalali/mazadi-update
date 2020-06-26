@@ -202,7 +202,110 @@ exports.getProducts = async(req,res,next)=>{
             .select('price')
             .skip((page-1)*productPerPage)
             .limit(productPerPage);
+        } 
+        
+       
+        return res.status(200).json({state:1,products:products,totalItems:totalProducts});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500; 
         }
+        next(err);
+    }   
+}
+
+
+exports.getAllProducts = async(req,res,next)=>{
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    const filter = req.query.filter || '1' ;
+    let totalProducts;
+    let products;
+    
+    try{
+
+        if(filter=='1'){
+             totalProducts = await Product.find({approve:'approved'})
+             .where('bidStatus')
+             .ne('ended')
+             .countDocuments();
+             products   = await Product.find({approve:'approved'})
+            .where('bidStatus')
+            .ne('ended')
+            .select('approve')
+            .select('imageUrl')
+            .select('desc')
+            .select('size')
+            .select('TotalPid')
+            .select('price')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        }
+        else if(filter=='date'){
+             totalProducts = await Product.find({approve:'approved'})
+            .where('bidStatus')
+            .ne('ended')
+            .countDocuments();
+             products   = await Product.find({approve:'approved'}).sort({createdAt: -1}) 
+            .where('bidStatus')
+            .ne('ended')
+            .select('approve')
+            .select('imageUrl')
+            .select('desc')
+            .select('size')
+            .select('TotalPid')
+            .select('price')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        }
+        else if(filter=='bids'){
+            totalProducts = await Product.find({approve:'approved'})
+            .where('bidStatus')
+            .ne('ended')
+            .countDocuments();
+            products   = await Product.find({approve:'approved'}).sort({TotalPid: -1}) 
+            .where('bidStatus')
+            .ne('ended')
+            .select('approve')
+            .select('imageUrl')
+            .select('desc')
+            .select('size')
+            .select('TotalPid')
+            .select('price')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+       }
+       else if(filter=='sold'){
+        totalProducts = await Product.find({pay:true})
+        .countDocuments();
+        products      = await Product.find({pay:true}).sort({createdAt: -1}) 
+        .select('approve')
+        .select('imageUrl')
+        .select('desc')
+        .select('size')
+        .select('TotalPid')
+        .select('createdAt')
+        .select('price')
+        .skip((page-1)*productPerPage)
+        .limit(productPerPage);
+        }
+        else{
+            totalProducts = await Product.find({approve:'approved',city:filter})
+            .where('bidStatus')
+            .ne('ended')
+            .countDocuments();
+             products   = await Product.find({approve:'approved',city:filter})
+             .where('bidStatus')
+            .ne('ended')
+            .select('approve')
+            .select('imageUrl')
+            .select('desc')
+            .select('size')
+            .select('TotalPid')
+            .select('price')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        } 
         
        
         return res.status(200).json({state:1,products:products,totalItems:totalProducts});
