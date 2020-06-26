@@ -38,7 +38,12 @@ router.post('/AQ/delete',isAuth,[                        //REST API
   .not().isEmpty()
 ],adminController.deleteFaQ);           
 router.post('/approve/:type',isAuth,adminController.postApprove); //REST API
-router.post('/disapprove/:type',isAuth,adminController.postdisApprove);
+router.post('/disapprove/:type',isAuth,[                        //REST API
+  body('id')
+  .not().isEmpty(),
+  body('note')
+  .not().isEmpty()
+],adminController.postdisApprove); //REST API
 router.post('/support',isAuth,[
     body('answer')
     .not().isEmpty()

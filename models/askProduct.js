@@ -62,7 +62,8 @@ const askProductSchema = new schema({
     pay:{
         type:Boolean,
         default:false
-    }
+    },
+    adminNote:String
 },{timestamps:true});
 
 module.exports = mongoose.model('askForProduct',askProductSchema);

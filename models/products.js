@@ -70,7 +70,8 @@ const productSchema = new schema({
     pay:{
         type:Boolean,
         default:false
-    }
+    },
+    adminNote:String
   },
     {timestamps:true}
 );

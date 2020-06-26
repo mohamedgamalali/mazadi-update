@@ -507,12 +507,27 @@ exports.postdisApprove = async (req, res, next) => {
   try {
     const id = req.body.id;
     const action = req.params.type;
+    const note   = req.body.note;
+    const errors = validationResult(req);
+
     let product;
     let body;
     let notfi;
 
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
+      if(!product){
+        const error = new Error("product not found");
+        error.statusCode = 404;
+        throw error;
+      }
       body = {
         id: product._id.toString(),
         key: "2",
@@ -520,11 +535,15 @@ exports.postdisApprove = async (req, res, next) => {
       };
       notfi = {
         title: `للاسف تم رفض منتجك`,
-        body: "الرجاء مراجعه الشروط والاحكام ثم اعاده عرض المنتج",
+        body: `${note}`,
       };
-    }
-    if (action == 2) {
+    }else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
+      if(!product){
+        const error = new Error("order not found");
+        error.statusCode = 404;
+        throw error;
+      }
       body = {
         id: product._id.toString(),
         key: "3",
@@ -532,16 +551,25 @@ exports.postdisApprove = async (req, res, next) => {
       };
       notfi = {
         title: `للاسف تم رفض طلبك`,
-        body: "الرجاء مراجعه الشروط والاحكام ثم اعاده عرض الطلب",
+        body: `${note}`,
       };
+    }else{
+        const error = new Error("invalid param input!!");
+        error.statusCode = 422;
+        throw error;
     }
 
     product.approve = "disapprove";
-    const newProduct = await product.save();
-    const n = await sendNotfication.send(product.user.FCMJwt, body, notfi, [
+    product.adminNote = note;
+    await product.save();
+    await sendNotfication.send(product.user.FCMJwt, body, notfi, [
       product.user._id,
     ]);
-    res.redirect("/admin/approve");
+    res.status(200).json({
+      state:1,
+      message:'disapproved'
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
