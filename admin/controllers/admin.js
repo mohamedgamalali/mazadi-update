@@ -429,6 +429,11 @@ exports.postApprove = async (req, res, next) => {
 
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
+      if(!product){
+        const error = new Error("product not found");
+        error.statusCode = 404;
+        throw error;
+      }
       const admin = await Admin.find({});
       if (admin[0].bid == true) {
         product.bidStatus = "started";
@@ -455,6 +460,11 @@ exports.postApprove = async (req, res, next) => {
     }
     else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
+      if(!product){
+        const error = new Error("order not found");
+        error.statusCode = 404;
+        throw error;
+      }
       body = {
         id: product._id.toString(),
         key: "3",
