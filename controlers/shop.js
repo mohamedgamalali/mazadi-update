@@ -706,6 +706,46 @@ exports.getAskProduct = async(req,res,next)=>{
     }   
 }
 
+exports.getAllAskProducts = async(req,res,next)=>{
+    const page = req.query.page || 1 ;
+    const productPerPage = 10 ;
+    const filter = req.query.filter || '1' ;
+    let total;
+    let askProduct;
+    try{
+        if(filter=='1'){
+            total = await AskProduct.find({approve:"approved",ended:false}).countDocuments();
+            askProduct = await AskProduct.find({approve:"approved",ended:false})
+            .select('desc')
+            .select('approve')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        }else if(filter=='date'){
+            total = await AskProduct.find({approve:"approved",ended:false}).countDocuments();
+            askProduct = await AskProduct.find({approve:"approved",ended:false})
+            .sort({createdAt: -1})
+            .select('desc')
+            .select('approve')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        }else{
+            total = await AskProduct.find({approve:"approved",city:filter,ended:false}).countDocuments();
+            askProduct = await AskProduct.find({approve:"approved",city:filter,ended:false})
+            .select('desc')
+            .select('approve')
+            .skip((page-1)*productPerPage)
+            .limit(productPerPage);
+        }
+       
+        
+        return res.status(200).json({state:1,askProduct:askProduct,totalItems:total});
+    }catch(err){
+        if(!err.statusCode){
+            err.statusCode = 500; 
+        }
+        next(err);
+    }   
+}
 
 exports.putAskProductBid = async(req,res,next)=>{
     

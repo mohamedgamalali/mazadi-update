@@ -24,7 +24,7 @@ router.post('/order/delete',[
 
 router.get('/getProducts/:catigoryId',isAuth,shopController.getProducts); //catigoryId?page='+page
 
-router.get('/products/all',shopController.getAllProducts); 
+router.get('/products/all',isAuth,shopController.getAllProducts); //catigoryId?page='+page
 
 router.get('/getCatigory',shopController.getCatigory); 
 
@@ -41,6 +41,8 @@ router.put('/putPid',isAuth,shopController.putPid);
 router.put('/putAskProduct',isAuth,shopController.putAskProduct); 
 
 router.get('/getAskProduct/:categoryID',isAuth,shopController.getAskProduct); 
+
+router.get('/AskProduct/all',isAuth,shopController.getAllAskProducts); 
 
 router.post('/putAskProductBid',isAuth,shopController.putAskProductBid); 
 
