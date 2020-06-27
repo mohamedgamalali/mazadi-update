@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 const mongoose = require("mongoose");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const deleteFile = require("../../helpers/file");
 const sendNotfication = require("../../helpers/send-notfication");
@@ -64,12 +64,12 @@ exports.postLogin = async (req, res, next) => {
         adminId: admin._id.toString(),
       },
       process.env.ADMIN_JWT_PRIVATE_KEY,
-        {expiresIn:'1h'}
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({
       state: 1,
-      token: token
+      token: token,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -80,7 +80,6 @@ exports.postLogin = async (req, res, next) => {
 };
 
 exports.getTest = async (req, res, next) => {
-
   try {
     let revenue = 0;
     let d = new Date();
@@ -127,15 +126,14 @@ exports.getTest = async (req, res, next) => {
     const admin = await Admin.find({});
 
     res.status(200).json({
-        state: 1,
-        approve: products + ask,
-        supportMessages: supportMessages,
-        totalProducts: totalProducts,
-        totalAsk: totalAskProducts,
-        revenue: revenue,
-        run: admin[0].bid
-      });
-
+      state: 1,
+      approve: products + ask,
+      supportMessages: supportMessages,
+      totalProducts: totalProducts,
+      totalAsk: totalAskProducts,
+      revenue: revenue,
+      run: admin[0].bid,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -148,13 +146,13 @@ exports.getSupport = async (req, res, next) => {
   try {
     const supportMessages = await SupportMessages.find({
       answer: false,
-    })
-    .populate({
-        path: 'user', select: 'name email mobile'
+    }).populate({
+      path: "user",
+      select: "name email mobile",
     });
-    const answerd = await SupportMessages.find({ answer: true })  
-    .populate({
-        path: 'user', select: 'name email mobile'
+    const answerd = await SupportMessages.find({ answer: true }).populate({
+      path: "user",
+      select: "name email mobile",
     });
     res.status(200).json({
       supportMessages: supportMessages,
@@ -172,7 +170,7 @@ exports.getFaQ = async (req, res, next) => {
   try {
     const fAQ = await FaQ.find({});
     res.status(200).json({
-      fAQ: fAQ
+      fAQ: fAQ,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -184,19 +182,16 @@ exports.getFaQ = async (req, res, next) => {
 
 exports.getCatigory = async (req, res, next) => {
   try {
-    let message = req.flash("error");
-    if (message.length > 0) {
-      message = message[0];
-    } else {
-      message = null;
-    }
-    const catigory = await Catigory.find({});
-    res.render("catigory", {
-      pageName: "الاقسام",
+    
+    const catigory = await Catigory.find({}).select(
+      'name'
+      );
+    
+    res.status(200).json({
+      state:1,
       catigory: catigory,
-      error: message,
-      count: 1,
     });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -211,11 +206,11 @@ exports.postFaQ = async (req, res, next) => {
   const answer = req.body.answer;
   try {
     if (!errors.isEmpty()) {
-        const error = new Error("validation faild");
-        error.statusCode = 422;
-        error.data = errors.array();
-        throw error;
-      }
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
 
     const fAQ = new FaQ({
       ask: ask,
@@ -223,10 +218,10 @@ exports.postFaQ = async (req, res, next) => {
     });
     await fAQ.save();
     res.status(201).json({
-        state:1,
-        messaage:'Q&A created',
-        FAQ:fAQ
-    })
+      state: 1,
+      messaage: "Q&A created",
+      FAQ: fAQ,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -241,19 +236,21 @@ exports.deleteFaQ = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-        const error = new Error("validation faild");
-        error.statusCode = 422;
-        error.data = errors.array();
-        throw error;
-      }
-    
-      await FaQ.deleteMany({_id: {
-        $in: id
-      }});
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    await FaQ.deleteMany({
+      _id: {
+        $in: id,
+      },
+    });
     res.status(201).json({
-        state:1,
-        message:'Q&A deleted.'
-    })
+      state: 1,
+      message: "Q&A deleted.",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -293,10 +290,16 @@ exports.postSupport = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      req.flash("error", "يجب ادخال الرد!!");
-      return res.redirect("/admin/support/" + id);
+      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      error.statusCode = 422;
+      throw error;
     }
     const message = await SupportMessages.findById(id).populate("user");
+    if(!message){
+      const error = new Error(`support question not found!!`);
+      error.statusCode = 404;
+      throw error;
+    }
     await transport.sendMail({
       to: message.user.email,
       from: process.env.NODEMAILER_GMAIL + " mazadi",
@@ -310,7 +313,12 @@ exports.postSupport = async (req, res, next) => {
     });
     message.answer = true;
     await message.save();
-    return res.redirect("/admin/support");
+    
+    res.status(200).json({
+      state:1,
+      message:'message support answerd susessfully'
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -326,16 +334,19 @@ exports.postCatigory = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      req.flash("error", "يجب ادخال الاسم");
-      return res.redirect("/admin/catigory");
+      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      error.statusCode = 422;
+      throw error;
     }
     if (image.length == 0) {
-      req.flash("error", "يجب ادخال الصوره");
-      return res.redirect("/admin/catigory");
+      const error = new Error("validation faild.. you should insert image");
+      error.statusCode = 422;
+      throw error;
     }
     if (path.extname(image[0].path) == ".mp4") {
-      req.flash("error", "غير مسموح بادخال فيديو!!");
-      return res.redirect("/admin/catigory");
+      const error = new Error("validation faild.. only image type you can insert");
+      error.statusCode = 422;
+      throw error;
     }
 
     const cat = new Catigory({
@@ -354,10 +365,14 @@ exports.postCatigory = async (req, res, next) => {
       title: `قسم جديد (${newCat.name})`,
       body: "يمكنك الان تصفح معروضات القسم والاضافه بها",
     };
-    const n = await sendNotfication.sendAll(body, notfi);
+    
+    await sendNotfication.sendAll(body, notfi);
 
-    req.flash("error", "تم ادخال القسم بنجاح");
-    return res.redirect("/admin/catigory");
+    res.status(201).json({
+      state:1,
+      newCatigory:newCat
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -374,25 +389,29 @@ exports.postEditCat = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      req.flash("error", "يجب ادخال الاسم");
-      return res.redirect("/admin/catigory");
+      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      error.statusCode = 422;
+      throw error;
     }
 
     const catigory = await Catigory.findById(id);
-    catigory.name = name;
-
-    if (image.length > 0) {
+    catigory.name  = name;
+    
+    if (image) {
       if (path.extname(image[0].path) == ".mp4") {
-        req.flash("error", "غير مسموح بادخال فيديو!!");
-        return res.redirect("/admin/catigory");
+        const error = new Error(`validation faild.. you can't insert video`);
+        error.statusCode = 422;
+        throw error;
       }
       deleteFile.deleteFile(catigory.imageUrl);
       catigory.imageUrl = image[0].path;
     }
-    await catigory.save();
+    const newCat = await catigory.save();
 
-    req.flash("error", "تم التعديل بنجاح");
-    return res.redirect("/admin/catigory");
+    res.status(200).json({
+      state:1,
+      newCatigory:newCat
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -405,17 +424,17 @@ exports.getSingleProduct = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await Products.findById(id)
-      .populate({path:"user",select:'name mobile email'})
-      .populate({path:"catigory",select:'name'});
-      if(!product){
-        const error = new Error("product not found");
-        error.statusCode = 404;
-        throw error;
-      }
-      res.status(200).json({
-        state:1,
-        product:product
-      })
+      .populate({ path: "user", select: "name mobile email" })
+      .populate({ path: "catigory", select: "name" });
+    if (!product) {
+      const error = new Error("product not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      state: 1,
+      product: product,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -434,7 +453,7 @@ exports.postApprove = async (req, res, next) => {
 
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
-      if(!product){
+      if (!product) {
         const error = new Error("product not found");
         error.statusCode = 404;
         throw error;
@@ -462,10 +481,9 @@ exports.postApprove = async (req, res, next) => {
           body: "انتظر بدء المزاد في الميعاد المحدد ",
         };
       }
-    }
-    else if (action == 2) {
+    } else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
-      if(!product){
+      if (!product) {
         const error = new Error("order not found");
         error.statusCode = 404;
         throw error;
@@ -479,10 +497,10 @@ exports.postApprove = async (req, res, next) => {
         title: `تمت الموافقة على منتجك  `,
         body: "يمكنك اﻵن استقبال العروض لطلبك",
       };
-    }else{
-        const error = new Error("invalid param input!!");
-        error.statusCode = 422;
-        throw error;
+    } else {
+      const error = new Error("invalid param input!!");
+      error.statusCode = 422;
+      throw error;
     }
 
     product.approve = "approved";
@@ -492,8 +510,8 @@ exports.postApprove = async (req, res, next) => {
     ]);
 
     res.status(201).json({
-      state:1,
-      message:'approved sucsessfully'
+      state: 1,
+      message: "approved sucsessfully",
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -507,7 +525,7 @@ exports.postdisApprove = async (req, res, next) => {
   try {
     const id = req.body.id;
     const action = req.params.type;
-    const note   = req.body.note;
+    const note = req.body.note;
     const errors = validationResult(req);
 
     let product;
@@ -523,7 +541,7 @@ exports.postdisApprove = async (req, res, next) => {
 
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
-      if(!product){
+      if (!product) {
         const error = new Error("product not found");
         error.statusCode = 404;
         throw error;
@@ -537,9 +555,9 @@ exports.postdisApprove = async (req, res, next) => {
         title: `للاسف تم رفض منتجك`,
         body: `${note}`,
       };
-    }else if (action == 2) {
+    } else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
-      if(!product){
+      if (!product) {
         const error = new Error("order not found");
         error.statusCode = 404;
         throw error;
@@ -553,10 +571,10 @@ exports.postdisApprove = async (req, res, next) => {
         title: `للاسف تم رفض طلبك`,
         body: `${note}`,
       };
-    }else{
-        const error = new Error("invalid param input!!");
-        error.statusCode = 422;
-        throw error;
+    } else {
+      const error = new Error("invalid param input!!");
+      error.statusCode = 422;
+      throw error;
     }
 
     product.approve = "disapprove";
@@ -566,10 +584,9 @@ exports.postdisApprove = async (req, res, next) => {
       product.user._id,
     ]);
     res.status(200).json({
-      state:1,
-      message:'disapproved'
+      state: 1,
+      message: "disapproved",
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -582,19 +599,17 @@ exports.getSingleAsk = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await AskProduct.findById(id)
-      .populate({path:'user',select:'name mobile email'})
-      .populate({path:'catigory',select:'name'});
-      if(!product){
-        const error = new Error("order not found");
-        error.statusCode = 404;
-        throw error;
-      }
-      res.status(200).json({
-        state:1,
-        product:product
-      })
-
-    
+      .populate({ path: "user", select: "name mobile email" })
+      .populate({ path: "catigory", select: "name" });
+    if (!product) {
+      const error = new Error("order not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      state: 1,
+      product: product,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -630,52 +645,49 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const page = req.query.page || 1 ;
-    const productPerPage = 10 ;
-    const filter = req.query.filter || 1 ;                            //1=>approved//2=>disapproved//3=>need approve
+    const page = req.query.page || 1;
+    const productPerPage = 10;
+    const filter = req.query.filter || 1; //1=>approved//2=>disapproved//3=>need approve
     let products;
     let totalProducts;
-    if(filter==1){
-      
-      totalProducts = await AskProduct.find({ approve: "approved" })
-      .countDocuments();
+    if (filter == 1) {
+      totalProducts = await AskProduct.find({
+        approve: "approved",
+      }).countDocuments();
 
       products = await AskProduct.find({ approve: "approved" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .select('user desc city catigory')
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
-    }else if(filter==2){
-
-      totalProducts = await AskProduct.find({ approve: "disapprove" })
-      .countDocuments();
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .select("user desc city catigory")
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    } else if (filter == 2) {
+      totalProducts = await AskProduct.find({
+        approve: "disapprove",
+      }).countDocuments();
 
       products = await AskProduct.find({ approve: "disapprove" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .select('user desc city catigory')
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
-    }else if(filter==3){
-
-      totalProducts = await AskProduct.find({ approve: "binding" })
-      .countDocuments();
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .select("user desc city catigory")
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    } else if (filter == 3) {
+      totalProducts = await AskProduct.find({
+        approve: "binding",
+      }).countDocuments();
 
       products = await AskProduct.find({ approve: "binding" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .select('user desc city catigory')
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .select("user desc city catigory")
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
     }
-    
+
     res.status(200).json({
-      totalProducts:totalProducts,
-      products: products
+      totalProducts: totalProducts,
+      products: products,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -687,49 +699,46 @@ exports.getOrders = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const page = req.query.page || 1 ;
-    const productPerPage = 10 ;
-    const filter = req.query.filter || 1 ;                            //1=>approved//2=>disapproved//3=>need approve
+    const page = req.query.page || 1;
+    const productPerPage = 10;
+    const filter = req.query.filter || 1; //1=>approved//2=>disapproved//3=>need approve
     let products;
     let totalProducts;
-    if(filter==1){
-      
-      totalProducts = await Products.find({ approve: "approved" })
-      .countDocuments();
+    if (filter == 1) {
+      totalProducts = await Products.find({
+        approve: "approved",
+      }).countDocuments();
 
       products = await Products.find({ approve: "approved" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
-    }else if(filter==2){
-
-      totalProducts = await Products.find({ approve: "disapprove" })
-      .countDocuments();
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    } else if (filter == 2) {
+      totalProducts = await Products.find({
+        approve: "disapprove",
+      }).countDocuments();
 
       products = await Products.find({ approve: "disapprove" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
-    }else if(filter==3){
-
-      totalProducts = await Products.find({ approve: "binding" })
-      .countDocuments();
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    } else if (filter == 3) {
+      totalProducts = await Products.find({
+        approve: "binding",
+      }).countDocuments();
 
       products = await Products.find({ approve: "binding" })
-      .populate({path:'user',select:'name email mobile'})
-      .populate({path:'catigory',select:'name'})
-      .skip((page-1)*productPerPage)
-      .limit(productPerPage);
-
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
     }
-    
+
     res.status(200).json({
-      totalProducts:totalProducts,
-      products: products
+      totalProducts: totalProducts,
+      products: products,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1006,8 +1015,9 @@ exports.postStart = async (req, res, next) => {
 
     admin.forEach((a) => {
       if (a.bid == true) {
-        req.flash("error", "المزاد بدء بالفعل");
-        return res.redirect("/admin");
+        const error = new Error("bid already started");
+        error.statusCode = 403;
+        throw error;
       }
       a.bid = true;
       a.save();
@@ -1015,7 +1025,10 @@ exports.postStart = async (req, res, next) => {
 
     await bidManage.startBid();
 
-    res.redirect("/admin");
+    res.status(200).json({
+      state: 1,
+      message: "Bid started!!",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1030,8 +1043,9 @@ exports.postEnd = async (req, res, next) => {
 
     admin.forEach((a) => {
       if (a.bid == false) {
-        req.flash("error", "تم انتهاء المزاد بالفعل");
-        return res.redirect("/admin");
+        const error = new Error("bid already ended");
+        error.statusCode = 403;
+        throw error;
       }
       a.bid = false;
       a.save();
@@ -1039,7 +1053,10 @@ exports.postEnd = async (req, res, next) => {
 
     await bidManage.endBid();
 
-    res.redirect("/admin");
+    res.status(200).json({
+      state: 1,
+      message: "Bid ended!!",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

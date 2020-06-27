@@ -19,7 +19,6 @@ exports.startBid = async ()=>{
                 body:'يمكنك الان المزايده على اي منتج'
             };
             const n = await sendNotfication.sendAll(body,notfi);
-            console.log(n);
             
     }
         

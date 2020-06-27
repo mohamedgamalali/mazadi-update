@@ -1,5 +1,5 @@
 const bycript = require('bcryptjs');
-const {validationResult} = require('express-validator');
+const {check,validationResult} = require('express-validator');
 const validatePhoneNumber = require('validate-phone-number-node-js');
 const jwt     = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -70,10 +70,15 @@ exports.postLogin = async (req,res,next)=>{
     const FCM              = req.body.FCM;
     const isEmail          = emailOrPhone.search('@');
     
+    console.log("isEmail: " + isEmail);
+    
+    
         let user;
         if(isEmail>=0){
-            user = await User.findOne({email:emailOrPhone}) 
+            await check('emailOrPhone').isEmail().normalizeEmail().run(req);
+            user = await User.findOne({email:req.body.emailOrPhone}) 
         }else{
+            console.log("mobile:" + req.body.emailOrPhone);
             user = await User.findOne({mobile:emailOrPhone})
         }
             if(!FCM){

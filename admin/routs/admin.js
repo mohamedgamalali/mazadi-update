@@ -21,8 +21,8 @@ router.post('/login',[
 
 //admin pid manage
 
-router.post('/start',isAuth,adminController.postStart);
-router.post('/end',isAuth,adminController.postEnd);
+router.post('/start',isAuth,adminController.postStart);    //REST API
+router.post('/end',isAuth,adminController.postEnd);        //REST API
 
 //admin
 router.get('',isAuth,adminController.getTest);             //REST API
@@ -38,18 +38,21 @@ router.post('/AQ/delete',isAuth,[                        //REST API
   .not().isEmpty()
 ],adminController.deleteFaQ);           
 router.post('/approve/:type',isAuth,adminController.postApprove); //REST API
-router.post('/disapprove/:type',isAuth,[                        //REST API
+router.post('/disapprove/:type',isAuth,[                        
   body('id')
   .not().isEmpty(),
   body('note')
   .not().isEmpty()
 ],adminController.postdisApprove); //REST API
+
 router.post('/support',isAuth,[
     body('answer')
+    .not().isEmpty(),
+    body('id')
     .not().isEmpty()
-],adminController.postSupport);
+],adminController.postSupport);   //REST API
 
-router.post('/support/catigory',isAuth,[
+router.post('/support/catigory',isAuth,[    //REST API
   body('name')
   .not().isEmpty()
 ],adminController.postCatigory);
@@ -57,11 +60,14 @@ router.post('/support/catigory',isAuth,[
 
 router.post('/support/catigory/edit',isAuth,[
   body('name') 
+  .not().isEmpty(),
+  body('id') 
   .not().isEmpty()
-],adminController.postEditCat);
+],adminController.postEditCat);           //REST API
+
 router.get('/support',isAuth,adminController.getSupport);           //REST API
-router.get('/catigory',isAuth,adminController.getCatigory);
-router.get('/support/:id',isAuth,adminController.getSingleSupport);
+router.get('/catigory',isAuth,adminController.getCatigory);         //REST API
+router.get('/support/:id',isAuth,adminController.getSingleSupport); 
 router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);  //REST API
 router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);        //REST API
 router.get('/products',isAuth,adminController.getProducts);        //REST API
