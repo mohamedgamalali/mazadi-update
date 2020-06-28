@@ -184,7 +184,7 @@ exports.getCatigory = async (req, res, next) => {
   try {
     
     const catigory = await Catigory.find({}).select(
-      'name'
+      'name imageUrl'
       );
     
     res.status(200).json({

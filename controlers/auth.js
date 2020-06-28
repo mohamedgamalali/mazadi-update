@@ -70,12 +70,10 @@ exports.postLogin = async (req,res,next)=>{
     const FCM              = req.body.FCM;
     const isEmail          = emailOrPhone.search('@');
     
-    console.log("isEmail: " + isEmail);
-    
     
         let user;
         if(isEmail>=0){
-            await check('emailOrPhone').isEmail().normalizeEmail().run(req);
+            await check('emailOrPhone').isEmail().normalizeEmail().run(req);   
             user = await User.findOne({email:req.body.emailOrPhone}) 
         }else{
             console.log("mobile:" + req.body.emailOrPhone);
