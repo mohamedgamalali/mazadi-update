@@ -620,21 +620,84 @@ exports.getSingleAsk = async (req, res, next) => {
 
 exports.getUsers = async (req, res, next) => {
   try {
-    const users = await User.find({})
-      .select({
-        password: 0,
-        fevProducts: 0,
-        fevAskProduct: 0,
-        forgetPasswordCode: 0,
-        codeExpireDate: 0,
-      })
-      .populate("pids.product")
-      .populate("postedProducts");
+    const page = req.query.page || 1;
+    const productPerPage = 10; 
+    const filter = req.query.filter || 1; //1=>all//2=>blocked
+    let totalUsers;
+    let users;
+    if(filter==1){
+      totalUsers = await User.find({}).countDocuments();
+      users = await User.find({})
+      .select(
+        'name email mobile realMobileNumber verification'
+        )
+      .skip((page - 1) * productPerPage)
+      .limit(productPerPage);
+    }else if(filter==2){
+      totalUsers = await User.find({verification:true}).countDocuments();
+      users = await User.find({verification:true})
+      .select(
+        'name email mobile realMobileNumber verification'
+        )
+      .skip((page - 1) * productPerPage)
+      .limit(productPerPage);
+    }
+    
+    res.status(200).json({
+      state:1,
+      totalUsers:totalUsers,
+      users:users
+    })
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
-    res.render("users", {
-      pageName: "المستخدمون",
-      users: users,
+exports.getSingleUsers = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const userPersonalDate = await User.findById(id)
+    .select('name email mobile realMobileNumber verification');
+    if(!userPersonalDate){
+      const error = new Error("user not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    const userProducts = await Products.find({user:id})
+    .select('approve TotalPid imageUrl bidStatus catigory pay')
+    .populate({path:'catigory',select:'name'});
+    const lastBidin = await Products.find({lastPid:id})
+    .select('TotalPid imageUrl bidStatus catigory')
+    .populate({path:'catigory',select:'name'});
+    const allUserBids = await User.findById(id)
+    .select('pids')
+    .populate({path:'pids.product',select:'TotalPid imageUrl bidStatus catigory pay'});
+    const userOrders = await AskProduct.find({user:id})
+    .select('approve catigory ended pay Bids Bids')
+    .populate({path:'catigory',select:'name'});
+    
+    
+    let allUserBidsArray = [] ;
+
+    for(let u of allUserBids.pids){ 
+      if(u.product.imageUrl){
+        allUserBidsArray.push(u)
+      }
+    }
+
+
+    res.status(200).json({
+      state:1,
+      userPersonalData:userPersonalDate,
+      userProducts:userProducts,
+      lastBidin:lastBidin,
+      allUserBids:allUserBidsArray,
+      userOrders:userOrders
     });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

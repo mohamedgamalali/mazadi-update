@@ -60,7 +60,11 @@ const userSchema = new schema({
         }
     }],
     forgetPasswordCode:String,
-    codeExpireDate:Date
+    codeExpireDate:Date,
+    realMobileNumber:{
+        type:Boolean,
+        default:false
+    }
 });
 
 module.exports = mongoose.model('user',userSchema);

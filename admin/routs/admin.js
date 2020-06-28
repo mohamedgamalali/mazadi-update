@@ -67,12 +67,13 @@ router.post('/support/catigory/edit',isAuth,[
 
 router.get('/support',isAuth,adminController.getSupport);           //REST API
 router.get('/catigory',isAuth,adminController.getCatigory);         //REST API
-router.get('/support/:id',isAuth,adminController.getSingleSupport); 
+router.get('/support/:id',isAuth,adminController.getSingleSupport);                           ////////no need
 router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);  //REST API
 router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);        //REST API
 router.get('/products',isAuth,adminController.getProducts);        //REST API
 router.get('/orders',isAuth,adminController.getOrders);           //REST API
-router.get('/users',isAuth,adminController.getUsers);
+router.get('/users',isAuth,adminController.getUsers);             //REST API
+router.get('/singleUser/:id',isAuth,adminController.getSingleUsers);  //REST API
 router.post('/delete/:type',isAuth,adminController.postDelete);
 router.get('/Ads',isAuth,adminController.getAds);
 router.post('/ads/edit',isAuth,adminController.postEditAds);
