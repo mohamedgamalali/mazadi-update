@@ -786,7 +786,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
       .populate({ path: "user", select: "name email mobile" })
       .populate({ path: "catigory", select: "name" })
       .skip((page - 1) * productPerPage)
@@ -798,7 +798,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "disapprove" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -810,7 +810,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "binding" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -823,7 +823,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",bidStatus:'started' })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -836,7 +836,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",bidStatus:'ended' })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -849,7 +849,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",pay:true })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -863,7 +863,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved", bidStatus:'ended',pay:false })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user imageUrl')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -876,7 +876,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved", bidStatus:'binding'})
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user') 
+      .select('createdAt catigory age sex user imageUrl') 
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
