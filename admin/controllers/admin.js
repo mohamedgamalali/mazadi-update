@@ -876,7 +876,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved", bidStatus:'binding'})
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user')
+      .select('createdAt catigory age sex user') 
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
