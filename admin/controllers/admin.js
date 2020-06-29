@@ -733,7 +733,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "approved" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory pay")
+        .select("user desc city catigory pay note")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == 2) {
@@ -744,7 +744,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "disapprove" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory pay")
+        .select("user desc city catigory pay note")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == 3) {
@@ -755,7 +755,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "binding" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory pay")
+        .select("user desc city catigory pay note")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     }
@@ -785,16 +785,20 @@ exports.getProducts = async (req, res, next) => {
       }).countDocuments();
 
       products = await Products.find({ approve: "approved" })
-        .populate({ path: "user", select: "name email mobile" })
-        .populate({ path: "catigory", select: "name" })
-        .skip((page - 1) * productPerPage)
-        .limit(productPerPage);
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+      .populate({ path: "user", select: "name email mobile" })
+      .populate({ path: "catigory", select: "name" })
+      .skip((page - 1) * productPerPage)
+      .limit(productPerPage);
     } else if (filter == 2) {
       totalProducts = await Products.find({
         approve: "disapprove",
       }).countDocuments();
 
       products = await Products.find({ approve: "disapprove" })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -805,6 +809,74 @@ exports.getProducts = async (req, res, next) => {
       }).countDocuments();
 
       products = await Products.find({ approve: "binding" })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    }else if (filter == 4) {
+      totalProducts = await Products.find({
+        approve: "approved",
+        bidStatus:'started'
+      }).countDocuments();
+
+      products = await Products.find({ approve: "approved",bidStatus:'started' })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    }else if (filter == 5) {
+      totalProducts = await Products.find({
+        approve: "approved",
+        bidStatus:'ended'
+      }).countDocuments();
+
+      products = await Products.find({ approve: "approved",bidStatus:'ended' })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    }else if (filter == 6) {
+      totalProducts = await Products.find({
+        approve: "approved",
+        pay:true
+      }).countDocuments();
+
+      products = await Products.find({ approve: "approved",pay:true })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    }else if (filter == 7) {
+      totalProducts = await Products.find({
+        approve: "approved",
+        bidStatus:'ended',
+        pay:false
+      }).countDocuments();
+
+      products = await Products.find({ approve: "approved", bidStatus:'ended',pay:false })
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    }else if (filter == 8) {
+      totalProducts = await Products.find({
+        approve: "approved",
+        bidStatus:'binding'
+      }).countDocuments();
+
+      products = await Products.find({ approve: "approved", bidStatus:'binding'})
+      .sort({createdAt: -1})
+      .select('createdAt catigory age sex user')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)

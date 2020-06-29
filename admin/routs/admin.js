@@ -74,7 +74,7 @@ router.get('/products',isAuth,adminController.getProducts);        //REST API
 router.get('/orders',isAuth,adminController.getOrders);           //REST API
 router.get('/users',isAuth,adminController.getUsers);             //REST API
 router.get('/singleUser/:id',isAuth,adminController.getSingleUsers);  //REST API
-router.post('/delete/:type',isAuth,adminController.postDelete);
+router.post('/delete/:type',isAuth,adminController.postDelete);       //REST API
 router.get('/Ads',isAuth,adminController.getAds);
 router.post('/ads/edit',isAuth,adminController.postEditAds);
 router.post('/ads/delete',isAuth,adminController.postDeleteAds);
