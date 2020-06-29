@@ -79,8 +79,8 @@ router.get('/Ads',isAuth,adminController.getAds);
 router.post('/ads/edit',isAuth,adminController.postEditAds);
 router.post('/ads/delete',isAuth,adminController.postDeleteAds);
 router.post('/ads/add',isAuth,adminController.postAddAds);
-router.get('/lost',isAuth,adminController.getLost);
-router.post('/lost/delete',isAuth,adminController.postDeleteLost);
+router.get('/lost',isAuth,adminController.getLost);                 //REST API
+router.post('/lost/delete',isAuth,adminController.postDeleteLost);  //REST API
 
 //pay
 router.get('/pay',isAuth,adminController.getPay);
@@ -99,10 +99,13 @@ router.post('/notfication',
   .not().isEmpty(),
   body('body') 
   .not().isEmpty()
-],isAuth,adminController.postSendNotfication);
+],isAuth,adminController.postSendNotfication);            //REST API
 
 //block
-router.post('/block',isAuth,adminController.postBlock);
+router.post('/block',[
+  body('id') 
+  .not().isEmpty(),
+],isAuth,adminController.postBlock);                      //REST API
 
 
 

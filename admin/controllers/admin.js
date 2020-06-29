@@ -786,7 +786,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
       .populate({ path: "user", select: "name email mobile" })
       .populate({ path: "catigory", select: "name" })
       .skip((page - 1) * productPerPage)
@@ -798,7 +798,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "disapprove" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -810,7 +810,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "binding" })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -823,7 +823,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",bidStatus:'started' })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -836,7 +836,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",bidStatus:'ended' })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -849,7 +849,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved",pay:true })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -863,7 +863,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved", bidStatus:'ended',pay:false })
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl')
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -876,7 +876,7 @@ exports.getProducts = async (req, res, next) => {
 
       products = await Products.find({ approve: "approved", bidStatus:'binding'})
       .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl') 
+      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay') 
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -1112,19 +1112,22 @@ exports.postAddAds = async (req, res, next) => {
 };
 
 exports.getLost = async (req, res, next) => {
-  let message = req.flash("error");
-  if (message.length > 0) {
-    message = message[0];
-  } else {
-    message = null;
-  }
-  try {
-    const lost = await Lost.find({}).sort({ createdAt: -1 }).populate("user");
+  const productPerPage = 10 ;
+  const page    = req.query.page || 1;
+  const filter  = Number(req.query.filter ) || 0 ;
 
-    res.render("Lost", {
-      lost: lost,
-      error: message,
-    });
+  try {
+    const totalLost = await Lost.find({found:Boolean(filter)}).countDocuments()
+    const lost = await Lost.find({found:Boolean(filter)}).sort({ createdAt: -1 })
+    .populate({path:'user',select:'name mobie'})
+    .skip((page - 1) * productPerPage)
+    .limit(productPerPage);
+
+    res.status(200).json({
+      state:1,
+      totalLost:totalLost,
+      lost:lost
+    })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1139,14 +1142,18 @@ exports.postDeleteLost = async (req, res, next) => {
   try {
     const lost = await Lost.findById(id);
     if (!lost) {
-      req.flash("error", "حدث خطء!!");
-      res.redirect("/admin/lost");
+      const error = new Error(`lost not found`);
+      error.statusCode = 404;
+      throw error;
     }
     deleteFile.deleteFile(path.join(__dirname + "/../../" + lost.imageUrl));
 
-    const del = await Lost.findByIdAndDelete(id);
+    await Lost.findByIdAndDelete(id);
 
-    res.redirect("/admin/lost");
+    res.status(200).json({
+      state:1,
+      message:'lost deleted!!'
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1331,8 +1338,9 @@ exports.postSendNotfication = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      req.flash("error", "يجب ادخال السؤال والاجابه!!");
-      return res.redirect("/admin/support/f&q");
+      const error = new Error(`validation faild for ${errors.array()[0].param}`);
+      error.statusCode = 422;
+      throw error;
     }
 
     const Nbody = {
@@ -1345,9 +1353,12 @@ exports.postSendNotfication = async (req, res, next) => {
       body: body.toString(),
     };
 
-    const n = await sendNotfication.sendAll(Nbody, Nnotfi);
+    await sendNotfication.sendAll(Nbody, Nnotfi);
 
-    res.redirect("/admin");
+    res.status(201).json({
+      state:1,
+      message:'notfication sent to all the users'
+    })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1504,14 +1515,33 @@ exports.postSendPayProduct = async (req, res, next) => {
 exports.postBlock = async (req, res, next) => {
   const id = req.body.id;
 
+  const errors = validationResult(req);
+
   try {
+
+    if (!errors.isEmpty()) {
+      const error = new Error(`validation faild for ${errors.array()[0].param}`);
+      error.statusCode = 422;
+      throw error;
+    }
+
     const user = await User.findById(id);
+
+    if (!user) {
+      const error = new Error(`user not found`);
+      error.statusCode = 404;
+      throw error;
+    }
 
     user.verification = true;
     user.FCMJwt = [];
     await user.save();
 
-    res.redirect("/admin/users");
+    res.status(200).json({
+      state:1,
+      message:'user blocked'
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
