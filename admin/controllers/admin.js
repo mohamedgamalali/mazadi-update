@@ -817,66 +817,46 @@ exports.postDelete = async (req, res, next) => {
   let product;
   try {
     if (type == 1) {
-      if (!Array.isArray(id)) {
-        product = await Products.findById(id);
-        if (!product) {
-          const error = new Error("product not found!!..");
-          error.statusCode = 404;
-          throw error;
-        }
-        if (product.pay == true) {
-          const error = new Error("you can not delete the product after pay");
-          error.statusCode = 401;
-          throw error;
-        }
-        product.imageUrl.forEach((i) => {
-          deleteFile.deleteFile(path.join(__dirname + "/../../" + i));
-        });
-        if (product.vidUrl) {
-          deleteFile.deleteFile(
-            path.join(__dirname + "/../../" + product.vidUrl)
-          );
-        }
-        const Delete = await Products.findByIdAndDelete(id);
-        const catigory = await Catigory.findOne({ _id: product.catigory });
-        const user = await User.findOne({ _id: product.user });
-        catigory.products.pull(id);
-        user.postedProducts.pull(id);
-        await user.save();
-        await catigory.save();
-      } else {
-        id.forEach(async (i) => {
-          product = await Products.findById(mongoose.Types.ObjectId(i));
-          if (!product) {
+      
+          product = await Products.find({
+            _id: {
+              $in: id,
+            },
+          });
+          if (product.length==0) {
             const error = new Error("product not found!!..");
             error.statusCode = 404;
             throw error;
           }
-          if (product.pay == true) {
-            const error = new Error("you can not delete the product after pay");
-            error.statusCode = 401;
-            throw error;
-          }
-          product.imageUrl.forEach((p) => {
-            deleteFile.deleteFile(path.join(__dirname + "/../../" + p));
+          product.forEach(i=>{
+            if (i.pay == true) {
+              const error = new Error("you can not delete the product after pay");
+              error.statusCode = 401;
+              throw error;
+            }
+            i.imageUrl.forEach((p) => {
+              deleteFile.deleteFile(path.join(__dirname + "/../../" + p));
+            });
+            if (i.vidUrl) {
+              deleteFile.deleteFile(
+                path.join(__dirname + "/../../" + product.vidUrl)
+              );
+            }
           });
-          if (product.vidUrl) {
-            deleteFile.deleteFile(
-              path.join(__dirname + "/../../" + product.vidUrl)
-            );
+          
+          await Products.deleteMany({
+            _id: {
+              $in: id,
+            },
+          });
+          for(pp of product){
+            const catigory = await Catigory.find({ _id: pp.catigory });
+            const user     = await User.find({ _id: pp.user });
+            catigory.products.pull(pp._id);
+            user.postedProducts.pull(pp._id);
+            await user.save();
+            await catigory.save();
           }
-          const Delete = await Products.findByIdAndDelete(
-            mongoose.Types.ObjectId(i)
-          );
-          const catigory = await Catigory.findOne({ _id: product.catigory });
-          const user = await User.findOne({ _id: product.user });
-          catigory.products.pull(mongoose.Types.ObjectId(i));
-          user.postedProducts.pull(mongoose.Types.ObjectId(i));
-          await user.save();
-          await catigory.save();
-        });
-      }
-      res.redirect("/admin/products");
     }
     if (type == 2) {
       product = await AskProduct.findById(id);
@@ -903,6 +883,10 @@ exports.postDelete = async (req, res, next) => {
       const Delete = await AskProduct.findByIdAndDelete(id);
       return res.redirect("/admin/orders");
     }
+    res.status(200).json({
+      state:1,
+      message:'deleted!!'
+    })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
