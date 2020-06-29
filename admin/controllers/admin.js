@@ -87,6 +87,7 @@ exports.getTest = async (req, res, next) => {
       approve: "binding",
     }).countDocuments();
     const ask = await AskProduct.find({ approve: "binding" }).countDocuments();
+    const totalUsers = await User.find({}).countDocuments();
     const supportMessages = await SupportMessages.find({
       answer: false,
     }).countDocuments();
@@ -133,6 +134,7 @@ exports.getTest = async (req, res, next) => {
       totalAsk: totalAskProducts,
       revenue: revenue,
       run: admin[0].bid,
+      totalUsers:totalUsers
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -144,19 +146,24 @@ exports.getTest = async (req, res, next) => {
 
 exports.getSupport = async (req, res, next) => {
   try {
-    const supportMessages = await SupportMessages.find({
-      answer: false,
-    }).populate({
-      path: "user",
-      select: "name email mobile",
-    });
-    const answerd = await SupportMessages.find({ answer: true }).populate({
-      path: "user",
-      select: "name email mobile",
-    });
+    const filter = req.query.filter || 1;
+    let supportMessages;
+    if(filter==1){
+      supportMessages = await SupportMessages.find({
+        answer: false,
+      }).populate({
+        path: "user",
+        select: "name email mobile",
+      });
+    }else if(filter==2){
+      supportMessages = await SupportMessages.find({ answer: true }).populate({
+        path: "user",
+        select: "name email mobile",
+      });
+    }
     res.status(200).json({
+      state:1,
       supportMessages: supportMessages,
-      answerd: answerd,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -182,16 +189,12 @@ exports.getFaQ = async (req, res, next) => {
 
 exports.getCatigory = async (req, res, next) => {
   try {
-    
-    const catigory = await Catigory.find({}).select(
-      'name imageUrl'
-      );
-    
+    const catigory = await Catigory.find({}).select("name imageUrl");
+
     res.status(200).json({
-      state:1,
+      state: 1,
       catigory: catigory,
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -290,12 +293,16 @@ exports.postSupport = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param} in the ${
+          errors.array()[0].location
+        }`
+      );
       error.statusCode = 422;
       throw error;
     }
     const message = await SupportMessages.findById(id).populate("user");
-    if(!message){
+    if (!message) {
       const error = new Error(`support question not found!!`);
       error.statusCode = 404;
       throw error;
@@ -313,12 +320,11 @@ exports.postSupport = async (req, res, next) => {
     });
     message.answer = true;
     await message.save();
-    
-    res.status(200).json({
-      state:1,
-      message:'message support answerd susessfully'
-    });
 
+    res.status(200).json({
+      state: 1,
+      message: "message support answerd susessfully",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -334,7 +340,11 @@ exports.postCatigory = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param} in the ${
+          errors.array()[0].location
+        }`
+      );
       error.statusCode = 422;
       throw error;
     }
@@ -344,7 +354,9 @@ exports.postCatigory = async (req, res, next) => {
       throw error;
     }
     if (path.extname(image[0].path) == ".mp4") {
-      const error = new Error("validation faild.. only image type you can insert");
+      const error = new Error(
+        "validation faild.. only image type you can insert"
+      );
       error.statusCode = 422;
       throw error;
     }
@@ -365,14 +377,13 @@ exports.postCatigory = async (req, res, next) => {
       title: `قسم جديد (${newCat.name})`,
       body: "يمكنك الان تصفح معروضات القسم والاضافه بها",
     };
-    
+
     await sendNotfication.sendAll(body, notfi);
 
     res.status(201).json({
-      state:1,
-      newCatigory:newCat
+      state: 1,
+      newCatigory: newCat,
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -389,14 +400,18 @@ exports.postEditCat = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      const error = new Error(`validation faild for ${errors.array()[0].param} in the ${errors.array()[0].location}`);
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param} in the ${
+          errors.array()[0].location
+        }`
+      );
       error.statusCode = 422;
       throw error;
     }
 
     const catigory = await Catigory.findById(id);
-    catigory.name  = name;
-    
+    catigory.name = name;
+
     if (image) {
       if (path.extname(image[0].path) == ".mp4") {
         const error = new Error(`validation faild.. you can't insert video`);
@@ -409,8 +424,8 @@ exports.postEditCat = async (req, res, next) => {
     const newCat = await catigory.save();
 
     res.status(200).json({
-      state:1,
-      newCatigory:newCat
+      state: 1,
+      newCatigory: newCat,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -621,33 +636,29 @@ exports.getSingleAsk = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
   try {
     const page = req.query.page || 1;
-    const productPerPage = 10; 
+    const productPerPage = 10;
     const filter = req.query.filter || 1; //1=>all//2=>blocked
     let totalUsers;
     let users;
-    if(filter==1){
+    if (filter == 1) {
       totalUsers = await User.find({}).countDocuments();
       users = await User.find({})
-      .select(
-        'name email mobile realMobileNumber verification'
-        )
-      .skip((page - 1) * productPerPage)
-      .limit(productPerPage);
-    }else if(filter==2){
-      totalUsers = await User.find({verification:true}).countDocuments();
-      users = await User.find({verification:true})
-      .select(
-        'name email mobile realMobileNumber verification'
-        )
-      .skip((page - 1) * productPerPage)
-      .limit(productPerPage);
+        .select("name email mobile realMobileNumber verification")
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
+    } else if (filter == 2) {
+      totalUsers = await User.find({ verification: true }).countDocuments();
+      users = await User.find({ verification: true })
+        .select("name email mobile realMobileNumber verification")
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
     }
-    
+
     res.status(200).json({
-      state:1,
-      totalUsers:totalUsers,
-      users:users
-    })
+      state: 1,
+      totalUsers: totalUsers,
+      users: users,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -659,45 +670,46 @@ exports.getUsers = async (req, res, next) => {
 exports.getSingleUsers = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const userPersonalDate = await User.findById(id)
-    .select('name email mobile realMobileNumber verification');
-    if(!userPersonalDate){
+    const userPersonalDate = await User.findById(id).select(
+      "name email mobile realMobileNumber verification"
+    );
+    if (!userPersonalDate) {
       const error = new Error("user not found");
       error.statusCode = 404;
       throw error;
     }
-    const userProducts = await Products.find({user:id})
-    .select('approve TotalPid imageUrl bidStatus catigory pay')
-    .populate({path:'catigory',select:'name'});
-    const lastBidin = await Products.find({lastPid:id})
-    .select('TotalPid imageUrl bidStatus catigory')
-    .populate({path:'catigory',select:'name'});
+    const userProducts = await Products.find({ user: id })
+      .select("approve TotalPid imageUrl bidStatus catigory pay")
+      .populate({ path: "catigory", select: "name" });
+    const lastBidin = await Products.find({ lastPid: id })
+      .select("TotalPid imageUrl bidStatus catigory")
+      .populate({ path: "catigory", select: "name" });
     const allUserBids = await User.findById(id)
-    .select('pids')
-    .populate({path:'pids.product',select:'TotalPid imageUrl bidStatus catigory pay'});
-    const userOrders = await AskProduct.find({user:id})
-    .select('approve catigory ended pay Bids Bids')
-    .populate({path:'catigory',select:'name'});
-    
-    
-    let allUserBidsArray = [] ;
+      .select("pids")
+      .populate({
+        path: "pids.product",
+        select: "TotalPid imageUrl bidStatus pay",
+      });
+    const userOrders = await AskProduct.find({ user: id })
+      .select("approve catigory ended pay Bids Bids")
+      .populate({ path: "catigory", select: "name" });
 
-    for(let u of allUserBids.pids){ 
-      if(u.product.imageUrl){
-        allUserBidsArray.push(u)
+    let allUserBidsArray = [];
+
+    for (let u of allUserBids.pids) {
+      if (u.product.imageUrl) {
+        allUserBidsArray.push(u);
       }
     }
 
-
     res.status(200).json({
-      state:1,
-      userPersonalData:userPersonalDate,
-      userProducts:userProducts,
-      lastBidin:lastBidin,
-      allUserBids:allUserBidsArray,
-      userOrders:userOrders
+      state: 1,
+      userPersonalData: userPersonalDate,
+      userProducts: userProducts,
+      lastBidin: lastBidin,
+      allUserBids: allUserBidsArray,
+      userOrders: userOrders,
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -721,7 +733,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "approved" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory")
+        .select("user desc city catigory pay")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == 2) {
@@ -732,7 +744,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "disapprove" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory")
+        .select("user desc city catigory pay")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == 3) {
@@ -743,7 +755,7 @@ exports.getOrders = async (req, res, next) => {
       products = await AskProduct.find({ approve: "binding" })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
-        .select("user desc city catigory")
+        .select("user desc city catigory pay")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     }
@@ -817,76 +829,91 @@ exports.postDelete = async (req, res, next) => {
   let product;
   try {
     if (type == 1) {
-      
-          product = await Products.find({
-            _id: {
-              $in: id,
-            },
-          });
-          if (product.length==0) {
-            const error = new Error("product not found!!..");
-            error.statusCode = 404;
-            throw error;
-          }
-          product.forEach(i=>{
-            if (i.pay == true) {
-              const error = new Error("you can not delete the product after pay");
-              error.statusCode = 401;
-              throw error;
-            }
-            i.imageUrl.forEach((p) => {
-              deleteFile.deleteFile(path.join(__dirname + "/../../" + p));
-            });
-            if (i.vidUrl) {
-              deleteFile.deleteFile(
-                path.join(__dirname + "/../../" + product.vidUrl)
-              );
-            }
-          });
-          
-          await Products.deleteMany({
-            _id: {
-              $in: id,
-            },
-          });
-          for(pp of product){
-            const catigory = await Catigory.find({ _id: pp.catigory });
-            const user     = await User.find({ _id: pp.user });
-            catigory.products.pull(pp._id);
-            user.postedProducts.pull(pp._id);
-            await user.save();
-            await catigory.save();
-          }
+      product = await Products.find({
+        _id: {
+          $in: id,
+        },
+      });
+      if (product.length == 0) {
+        const error = new Error("product not found!!..");
+        error.statusCode = 404;
+        throw error;
+      }
+      product.forEach((i) => {
+        if (i.pay == true || i.bidStatus == "started") {
+          const error = new Error(
+            "you can not delete the product after pay or during th bid"
+          );
+          error.statusCode = 403;
+          throw error;
+        }
+      });
+      product.forEach((i) => {
+        i.imageUrl.forEach((p) => {
+          deleteFile.deleteFile(path.join(__dirname + "/../../" + p));
+        });
+        if (i.vidUrl) {
+          deleteFile.deleteFile(
+            path.join(__dirname + "/../../" + product.vidUrl)
+          );
+        }
+      });
+
+      await Products.deleteMany({
+        _id: {
+          $in: id,
+        },
+      });
+      for (pp of product) {
+        const catigory = await Catigory.findOne({ _id: pp.catigory });
+        const user = await User.findOne({ _id: pp.user });
+        catigory.products.pull(pp._id);
+        user.postedProducts.pull(pp._id);
+        await user.save();
+        await catigory.save();
+      }
     }
     if (type == 2) {
-      product = await AskProduct.findById(id);
-      if (!product) {
+      product = await AskProduct.find({
+        _id: {
+          $in: id,
+        },
+      });
+      if (product.length==0) {
         const error = new Error("order not found!!..");
         error.statusCode = 404;
         throw error;
       }
-
-      if (product.pay == true) {
-        const error = new Error("you can not delete the order ater pay");
-        error.statusCode = 401;
-        throw error;
-      }
-      product.Bids.forEach((f) => {
-        if (f.vidUrl) {
-          deleteFile.deleteFile(path.join(__dirname + "/../../" + f.vidUrl));
+      for(let p of product){
+        if (p.pay == true) {
+          const error = new Error("you can not delete the order ater pay");
+          error.statusCode = 403;
+          throw error;
         }
-        f.imageUrl.forEach((i) => {
-          deleteFile.deleteFile(path.join(__dirname + "/../../" + i));
+      }
+      for(let p of product){
+        p.Bids.forEach((f) => {
+          if (f.vidUrl) {
+            deleteFile.deleteFile(path.join(__dirname + "/../../" + f.vidUrl));
+          }
+          f.imageUrl.forEach((i) => {
+            deleteFile.deleteFile(path.join(__dirname + "/../../" + i));
+          });
         });
+      }
+      
+
+      await AskProduct.deleteMany({
+        _id: {
+          $in: id,
+        },
       });
 
-      const Delete = await AskProduct.findByIdAndDelete(id);
-      return res.redirect("/admin/orders");
     }
     res.status(200).json({
-      state:1,
-      message:'deleted!!'
-    })
+      state: 1,
+      message: "deleted!!",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
