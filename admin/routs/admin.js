@@ -83,14 +83,16 @@ router.get('/lost',isAuth,adminController.getLost);                 //REST API
 router.post('/lost/delete',isAuth,adminController.postDeleteLost);  //REST API
 
 //pay
-router.get('/pay',isAuth,adminController.getPay);
+router.get('/pay',isAuth,adminController.getPay);                   //REST API
 
-router.get('/sendPay/product/:action/:id',isAuth,adminController.getSendPayProduct);
+router.post('/pay/refuse/:action',[
+  body('answer') 
+  .not().isEmpty(),
+  body('id') 
+  .not().isEmpty()
+],isAuth,adminController.postSendPayProduct);   
 
-
-router.post('/pay/send/:action',isAuth,adminController.postSendPayProduct);
-
-router.post('/pay/:action',isAuth,adminController.postPay);
+router.post('/pay/accept/:action',isAuth,adminController.postPay);  //REST API
 
 //send notfication
 router.post('/notfication',

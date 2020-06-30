@@ -134,7 +134,7 @@ exports.getTest = async (req, res, next) => {
       totalAsk: totalAskProducts,
       revenue: revenue,
       run: admin[0].bid,
-      totalUsers:totalUsers
+      totalUsers: totalUsers,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -148,21 +148,21 @@ exports.getSupport = async (req, res, next) => {
   try {
     const filter = req.query.filter || 1;
     let supportMessages;
-    if(filter==1){
+    if (filter == 1) {
       supportMessages = await SupportMessages.find({
         answer: false,
       }).populate({
         path: "user",
         select: "name email mobile",
       });
-    }else if(filter==2){
+    } else if (filter == 2) {
       supportMessages = await SupportMessages.find({ answer: true }).populate({
         path: "user",
         select: "name email mobile",
       });
     }
     res.status(200).json({
-      state:1,
+      state: 1,
       supportMessages: supportMessages,
     });
   } catch (err) {
@@ -684,12 +684,10 @@ exports.getSingleUsers = async (req, res, next) => {
     const lastBidin = await Products.find({ lastPid: id })
       .select("TotalPid imageUrl bidStatus catigory")
       .populate({ path: "catigory", select: "name" });
-    const allUserBids = await User.findById(id)
-      .select("pids")
-      .populate({
-        path: "pids.product",
-        select: "TotalPid imageUrl bidStatus pay",
-      });
+    const allUserBids = await User.findById(id).select("pids").populate({
+      path: "pids.product",
+      select: "TotalPid imageUrl bidStatus pay",
+    });
     const userOrders = await AskProduct.find({ user: id })
       .select("approve catigory ended pay Bids Bids")
       .populate({ path: "catigory", select: "name" });
@@ -785,20 +783,24 @@ exports.getProducts = async (req, res, next) => {
       }).countDocuments();
 
       products = await Products.find({ approve: "approved" })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
-      .populate({ path: "user", select: "name email mobile" })
-      .populate({ path: "catigory", select: "name" })
-      .skip((page - 1) * productPerPage)
-      .limit(productPerPage);
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage);
     } else if (filter == 2) {
       totalProducts = await Products.find({
         approve: "disapprove",
       }).countDocuments();
 
       products = await Products.find({ approve: "disapprove" })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -809,74 +811,99 @@ exports.getProducts = async (req, res, next) => {
       }).countDocuments();
 
       products = await Products.find({ approve: "binding" })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    }else if (filter == 4) {
+    } else if (filter == 4) {
       totalProducts = await Products.find({
         approve: "approved",
-        bidStatus:'started'
+        bidStatus: "started",
       }).countDocuments();
 
-      products = await Products.find({ approve: "approved",bidStatus:'started' })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+      products = await Products.find({
+        approve: "approved",
+        bidStatus: "started",
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    }else if (filter == 5) {
+    } else if (filter == 5) {
       totalProducts = await Products.find({
         approve: "approved",
-        bidStatus:'ended'
+        bidStatus: "ended",
       }).countDocuments();
 
-      products = await Products.find({ approve: "approved",bidStatus:'ended' })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+      products = await Products.find({
+        approve: "approved",
+        bidStatus: "ended",
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    }else if (filter == 6) {
+    } else if (filter == 6) {
       totalProducts = await Products.find({
         approve: "approved",
-        pay:true
+        pay: true,
       }).countDocuments();
 
-      products = await Products.find({ approve: "approved",pay:true })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+      products = await Products.find({ approve: "approved", pay: true })
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    }else if (filter == 7) {
+    } else if (filter == 7) {
       totalProducts = await Products.find({
         approve: "approved",
-        bidStatus:'ended',
-        pay:false
+        bidStatus: "ended",
+        pay: false,
       }).countDocuments();
 
-      products = await Products.find({ approve: "approved", bidStatus:'ended',pay:false })
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay')
+      products = await Products.find({
+        approve: "approved",
+        bidStatus: "ended",
+        pay: false,
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    }else if (filter == 8) {
+    } else if (filter == 8) {
       totalProducts = await Products.find({
         approve: "approved",
-        bidStatus:'binding'
+        bidStatus: "binding",
       }).countDocuments();
 
-      products = await Products.find({ approve: "approved", bidStatus:'binding'})
-      .sort({createdAt: -1})
-      .select('createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay') 
+      products = await Products.find({
+        approve: "approved",
+        bidStatus: "binding",
+      })
+        .sort({ createdAt: -1 })
+        .select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .skip((page - 1) * productPerPage)
@@ -914,7 +941,7 @@ exports.postDelete = async (req, res, next) => {
       product.forEach((i) => {
         if (i.pay == true || i.bidStatus == "started") {
           const error = new Error(
-            "you can not delete the product after pay or during th bid"
+            "you can not delete the product after pay or during the bid"
           );
           error.statusCode = 403;
           throw error;
@@ -951,19 +978,19 @@ exports.postDelete = async (req, res, next) => {
           $in: id,
         },
       });
-      if (product.length==0) {
+      if (product.length == 0) {
         const error = new Error("order not found!!..");
         error.statusCode = 404;
         throw error;
       }
-      for(let p of product){
+      for (let p of product) {
         if (p.pay == true) {
           const error = new Error("you can not delete the order ater pay");
           error.statusCode = 403;
           throw error;
         }
       }
-      for(let p of product){
+      for (let p of product) {
         p.Bids.forEach((f) => {
           if (f.vidUrl) {
             deleteFile.deleteFile(path.join(__dirname + "/../../" + f.vidUrl));
@@ -973,14 +1000,12 @@ exports.postDelete = async (req, res, next) => {
           });
         });
       }
-      
 
       await AskProduct.deleteMany({
         _id: {
           $in: id,
         },
       });
-
     }
     res.status(200).json({
       state: 1,
@@ -1112,22 +1137,25 @@ exports.postAddAds = async (req, res, next) => {
 };
 
 exports.getLost = async (req, res, next) => {
-  const productPerPage = 10 ;
-  const page    = req.query.page || 1;
-  const filter  = Number(req.query.filter ) || 0 ;
+  const productPerPage = 10;
+  const page = req.query.page || 1;
+  const filter = Number(req.query.filter) || 0;
 
   try {
-    const totalLost = await Lost.find({found:Boolean(filter)}).countDocuments()
-    const lost = await Lost.find({found:Boolean(filter)}).sort({ createdAt: -1 })
-    .populate({path:'user',select:'name mobie'})
-    .skip((page - 1) * productPerPage)
-    .limit(productPerPage);
+    const totalLost = await Lost.find({
+      found: Boolean(filter),
+    }).countDocuments();
+    const lost = await Lost.find({ found: Boolean(filter) })
+      .sort({ createdAt: -1 })
+      .populate({ path: "user", select: "name mobie" })
+      .skip((page - 1) * productPerPage)
+      .limit(productPerPage);
 
     res.status(200).json({
-      state:1,
-      totalLost:totalLost,
-      lost:lost
-    })
+      state: 1,
+      totalLost: totalLost,
+      lost: lost,
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1151,8 +1179,8 @@ exports.postDeleteLost = async (req, res, next) => {
     await Lost.findByIdAndDelete(id);
 
     res.status(200).json({
-      state:1,
-      message:'lost deleted!!'
+      state: 1,
+      message: "lost deleted!!",
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1219,43 +1247,79 @@ exports.postEnd = async (req, res, next) => {
 };
 
 exports.getPay = async (req, res, next) => {
-  const filter = req.query.filter || 1;
-  let pay;
-  let payO;
+  const productPerPage = 10;
+  const page = req.query.page || 1;
+  const filter = req.query.filter || 1; //1=>need accept//2=>accepted//3=>contacted the user
+  const type = req.query.type || 1; //1=>product//2=>orders
+  let payItems;
+  let totalItems;
   try {
     if (filter == 1) {
-      pay = await PayProduct.find({ pay: false, view: false })
-        .populate("user")
-        .populate("data")
-        .populate("products");
-      payO = await PayOrder.find({ pay: false, view: false })
-        .populate("user")
-        .populate("data")
-        .populate("order");
+      if (type == 1) {
+        totalItems = await PayProduct.find({
+          pay: false,
+          view: false,
+        }).countDocuments();
+        payItems = await PayProduct.find({ pay: false, view: false })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "products", select: "imageUrl TotalPid" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      } else if (type == 2) {
+        totalItems = await PayOrder.find({
+          pay: false,
+          view: false,
+        }).countDocuments();
+        payItems = await PayOrder.find({ pay: false, view: false })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "order", select: "desc sex city" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      }
     } else if (filter == 2) {
-      pay = await PayProduct.find({ pay: true })
-        .populate("user")
-        .populate("data")
-        .populate("products");
-      payO = await PayOrder.find({ pay: true })
-        .populate("user")
-        .populate("data")
-        .populate("order");
+      if (type == 1) {
+        totalItems = await PayProduct.find({ pay: true }).countDocuments();
+        payItems = await PayProduct.find({ pay: true })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "products", select: "imageUrl TotalPid" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      } else if (type == 2) {
+        totalItems = await PayOrder.find({ pay: true }).countDocuments();
+        payItems = await PayOrder.find({ pay: true })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "order", select: "desc sex city" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      }
     } else if (filter == 3) {
-      pay = await PayProduct.find({ view: true })
-        .populate("user")
-        .populate("data")
-        .populate("products");
-      payO = await PayOrder.find({ view: true })
-        .populate("user")
-        .populate("data")
-        .populate("order");
+      if (type == 1) {
+        totalItems = await PayProduct.find({ view: true }).countDocuments();
+        payItems = await PayProduct.find({ view: true })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "products", select: "imageUrl TotalPid" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      } else if (type == 2) {
+        totalItems = await PayOrder.find({ view: true }).countDocuments();
+        payItems = await PayOrder.find({ view: true })
+          .populate({ path: "user", select: "neme mobile email" })
+          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "order", select: "desc sex city" })
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      }
     }
 
-    res.render("pay", {
-      pay: pay,
-      payO: payO,
-      filter: filter,
+    res.status(200).json({
+      state: 1,
+      totalItems: totalItems,
+      payItems: payItems,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1322,7 +1386,10 @@ exports.postPay = async (req, res, next) => {
       await product.save();
     }
 
-    res.redirect("/admin/pay");
+    res.status(200).json({
+      state: 1,
+      message: "pay accepted!!",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1338,7 +1405,9 @@ exports.postSendNotfication = async (req, res, next) => {
 
   try {
     if (!errors.isEmpty()) {
-      const error = new Error(`validation faild for ${errors.array()[0].param}`);
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param}`
+      );
       error.statusCode = 422;
       throw error;
     }
@@ -1356,107 +1425,8 @@ exports.postSendNotfication = async (req, res, next) => {
     await sendNotfication.sendAll(Nbody, Nnotfi);
 
     res.status(201).json({
-      state:1,
-      message:'notfication sent to all the users'
-    })
-  } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  }
-};
-
-exports.getSendPayProduct = async (req, res, next) => {
-  const action = req.params.action;
-  const id = req.params.id;
-
-  let message = req.flash("error");
-  if (message.length > 0) {
-    message = message[0];
-  } else {
-    message = null;
-  }
-
-  try {
-    let pay;
-    let userName;
-    let product;
-    let img;
-
-    if (action == 1) {
-      pay = await PayProduct.findById(id).populate("user").populate("products");
-
-      userName = pay.user.email;
-      product = pay.products.desc;
-      img = pay.pillImage;
-    }
-    if (action == 2) {
-      pay = await PayOrder.findById(id).populate("user").populate("order");
-      userName = pay.user.email;
-      product = pay.order.desc;
-      img = pay.pillImage;
-    }
-
-    res.render("prod-pay-send", {
-      pageName: "الدفع",
-      error: message,
-      userName: userName,
-      product: product,
-      img: img,
-      id: pay._id,
-    });
-  } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  }
-};
-
-exports.getSendPayProduct = async (req, res, next) => {
-  const action = req.params.action;
-  const id = req.params.id;
-
-  let message = req.flash("error");
-  if (message.length > 0) {
-    message = message[0];
-  } else {
-    message = null;
-  }
-
-  try {
-    let pay;
-    let userName;
-    let product;
-    let img;
-    let price;
-
-    if (action == 1) {
-      pay = await PayProduct.findById(id).populate("user").populate("products");
-
-      userName = pay.user.email;
-      product = pay.products.desc;
-      img = pay.pillImage;
-      price = pay.products.TotalPid;
-    }
-    if (action == 2) {
-      pay = await PayOrder.findById(id).populate("user").populate("order");
-      userName = pay.user.email;
-      product = pay.order.desc;
-      img = pay.pillImage;
-      price = pay.price;
-    }
-
-    res.render("prod-pay-send", {
-      pageName: "الدفع",
-      error: message,
-      userName: userName,
-      product: product,
-      img: img,
-      id: pay._id,
-      action: action,
-      price: price,
+      state: 1,
+      message: "notfication sent to all the users",
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1470,8 +1440,16 @@ exports.postSendPayProduct = async (req, res, next) => {
   const answer = req.body.answer;
   const id = req.body.id;
   const action = req.params.action;
+  const errors = validationResult(req);
 
   try {
+    if (!errors.isEmpty()) {
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param}`
+      );
+      error.statusCode = 422;
+      throw error;
+    }
     if (action == 1) {
       pay = await PayProduct.findById(id).populate("user").populate("products");
 
@@ -1503,7 +1481,10 @@ exports.postSendPayProduct = async (req, res, next) => {
       await pay.save();
     }
 
-    res.redirect("/admin/pay");
+    res.status(200).json({
+      state: 1,
+      message: "email sent to the user",
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1518,9 +1499,10 @@ exports.postBlock = async (req, res, next) => {
   const errors = validationResult(req);
 
   try {
-
     if (!errors.isEmpty()) {
-      const error = new Error(`validation faild for ${errors.array()[0].param}`);
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param}`
+      );
       error.statusCode = 422;
       throw error;
     }
@@ -1538,10 +1520,9 @@ exports.postBlock = async (req, res, next) => {
     await user.save();
 
     res.status(200).json({
-      state:1,
-      message:'user blocked'
+      state: 1,
+      message: "user blocked",
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
