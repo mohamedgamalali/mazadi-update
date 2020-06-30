@@ -109,6 +109,7 @@ router.post('/block',[
   .not().isEmpty(),
 ],isAuth,adminController.postBlock);                      //REST API
 
-
+//Search
+router.get('/search',isAuth,adminController.getSearch)
 
 module.exports = router;

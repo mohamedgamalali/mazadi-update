@@ -1530,3 +1530,78 @@ exports.postBlock = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getSearch = async (req, res, next) => {
+  const search = req.query.search;
+  const type = req.query.type || "product";
+  const page = req.query.page || 1 ;
+  const itemPerPage = 10 ;
+  let totalItems;
+  let result;
+  try {
+    if (type == "product") {
+      totalItems = await Products.find({
+        $or: [
+          { age: { $regex: search } },
+          { desc: { $regex: search } },
+          { production: { $regex: search } },
+          { sex: { $regex: search } },
+          { city: { $regex: search } },
+          { adress: { $regex: search } },
+        ],
+      }).countDocuments();
+      result = await Products.find({
+        $or: [
+          { age: { $regex: search } },
+          { desc: { $regex: search } },
+          { production: { $regex: search } },
+          { sex: { $regex: search } },
+          { city: { $regex: search } },
+          { adress: { $regex: search } },
+        ],
+      }).select(
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+        )
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * itemPerPage)
+        .limit(itemPerPage);;
+
+    } else if (type == "order") {
+      totalItems = await AskProduct.find({
+        $or: [
+          { age: { $regex: search } },
+          { desc: { $regex: search } },
+          { production: { $regex: search } },
+          { sex: { $regex: search } },
+          { city: { $regex: search } },
+          { adress: { $regex: search } },
+        ],
+      }).countDocuments();
+      result = await AskProduct.find({
+        $or: [
+          { age: { $regex: search } },
+          { desc: { $regex: search } },
+          { production: { $regex: search } },
+          { sex: { $regex: search } },
+          { city: { $regex: search } },
+          { adress: { $regex: search } },
+        ],
+      }).populate({ path: "user", select: "name email mobile" })
+      .populate({ path: "catigory", select: "name" })
+      .select("user desc city catigory pay note")
+      .skip((page - 1) * itemPerPage)
+      .limit(itemPerPage);
+    }
+    res.status(200).json({
+      state: 1,
+      totalItems:totalItems,
+      searchResulr: result,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
