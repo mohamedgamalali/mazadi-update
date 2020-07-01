@@ -341,9 +341,7 @@ exports.postCatigory = async (req, res, next) => {
   try {
     if (!errors.isEmpty()) {
       const error = new Error(
-        `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
-        }`
+        `${name}`
       );
       error.statusCode = 422;
       throw error;
