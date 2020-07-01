@@ -52,11 +52,11 @@ router.post('/support',isAuth,[
     .not().isEmpty()
 ],adminController.postSupport);   //REST API
 
-/*router.use('/support/catigory',(req,res,next)=>{
-  res.removeHeader('Content-type');
-  res.set('Content-type', 'multipart/form-data');
+router.use('/support/catigory',(req,res,next)=>{
+
+  res.setHeader('Access-Control-Allow-Origin','*');
   next();
-})*/
+})
 
 router.post('/support/catigory',isAuth,[    //REST API
   body('name')
