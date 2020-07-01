@@ -52,10 +52,7 @@ router.post('/support',isAuth,[
     .not().isEmpty()
 ],adminController.postSupport);   //REST API
 
-router.post('/support/catigory',isAuth,[    //REST API
-  body('name')
-  .not().isEmpty()
-],adminController.postCatigory);
+router.post('/support/catigory',isAuth,adminController.postCatigory);
 
 
 router.post('/support/catigory/edit',isAuth,[
