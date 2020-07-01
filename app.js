@@ -4,11 +4,13 @@ const bodyParser= require('body-parser');
 const multer    = require('multer');
 const path      = require('path');
 const admin = require("firebase-admin");
+const cors = require('cors')
 
 require('dotenv').config();
 
 const app       = express(); 
 
+app.use(cors());
 
 const MONGODB_URI = process.env.MONGODB_URI ;
 
