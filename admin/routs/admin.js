@@ -52,12 +52,6 @@ router.post('/support',isAuth,[
     .not().isEmpty()
 ],adminController.postSupport);   //REST API
 
-router.use('/support/catigory',(req,res,next)=>{
-
-  res.setHeader('Access-Control-Allow-Origin','*');
-  next();
-})
-
 router.post('/support/catigory',isAuth,[    //REST API
   body('name')
   .not().isEmpty()
