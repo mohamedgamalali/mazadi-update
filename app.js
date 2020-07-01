@@ -54,7 +54,7 @@ app.use('/vid',express.static(path.join(__dirname,'vid')));
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
-    res.setHeader('Access-Control-Allow-Headers','Content-type,Authorization');
+    res.setHeader('Access-Control-Allow-Headers','Origin,X-Requested-With,Content-type,Authorization');
     next();
 });
 //fireBace
