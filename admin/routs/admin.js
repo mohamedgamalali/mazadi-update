@@ -52,6 +52,11 @@ router.post('/support',isAuth,[
     .not().isEmpty()
 ],adminController.postSupport);   //REST API
 
+router.use('/support/catigory',(req,res,next)=>{
+  res.set('Content-type', 'multipart/form-data');
+  next();
+})
+
 router.post('/support/catigory',isAuth,[    //REST API
   body('name')
   .not().isEmpty()
