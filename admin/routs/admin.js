@@ -53,6 +53,7 @@ router.post('/support',isAuth,[
 ],adminController.postSupport);   //REST API
 
 router.use('/support/catigory',(req,res,next)=>{
+  res.removeHeader('Content-type');
   res.set('Content-type', 'multipart/form-data');
   next();
 })
