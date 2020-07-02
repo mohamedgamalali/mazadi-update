@@ -262,30 +262,6 @@ exports.deleteFaQ = async (req, res, next) => {
   }
 };
 
-exports.getSingleSupport = async (req, res, next) => {
-  const id = req.params.id;
-  try {
-    let message = req.flash("error");
-    if (message.length > 0) {
-      message = message[0];
-    } else {
-      message = null;
-    }
-    const supportMessage = await SupportMessages.findById(id).populate("user");
-
-    res.render("single-support", {
-      pageName: "الدعم",
-      supportMessage: supportMessage,
-      error: message,
-    });
-  } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  }
-};
-
 exports.postSupport = async (req, res, next) => {
   const answer = req.body.answer;
   const id = req.body.id;
@@ -1299,8 +1275,8 @@ exports.getPay = async (req, res, next) => {
           view: false,
         }).countDocuments();
         payItems = await PayProduct.find({ pay: false, view: false })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
@@ -1310,8 +1286,8 @@ exports.getPay = async (req, res, next) => {
           view: false,
         }).countDocuments();
         payItems = await PayOrder.find({ pay: false, view: false })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
@@ -1320,16 +1296,16 @@ exports.getPay = async (req, res, next) => {
       if (type == 1) {
         totalItems = await PayProduct.find({ pay: true }).countDocuments();
         payItems = await PayProduct.find({ pay: true })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
         totalItems = await PayOrder.find({ pay: true }).countDocuments();
         payItems = await PayOrder.find({ pay: true })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
@@ -1338,16 +1314,16 @@ exports.getPay = async (req, res, next) => {
       if (type == 1) {
         totalItems = await PayProduct.find({ view: true }).countDocuments();
         payItems = await PayProduct.find({ view: true })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
         totalItems = await PayOrder.find({ view: true }).countDocuments();
         payItems = await PayOrder.find({ view: true })
-          .populate({ path: "user", select: "neme mobile email" })
-          .populate({ path: "data", select: "neme mobile email" })
+          .populate({ path: "user", select: "name mobile email" })
+          .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
@@ -1652,6 +1628,35 @@ exports.getSearch = async (req, res, next) => {
       state: 1,
       totalItems:totalItems,
       searchResulr: result,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postTotalBid = async (req, res, next) => {
+  const id = req.body.id;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    await FaQ.deleteMany({
+      _id: {
+        $in: id,
+      },
+    });
+    res.status(201).json({
+      state: 1,
+      message: "Q&A deleted.",
     });
   } catch (err) {
     if (!err.statusCode) {

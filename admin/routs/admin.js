@@ -67,7 +67,6 @@ router.post('/support/catigory/edit',isAuth,[
 
 router.get('/support',isAuth,adminController.getSupport);                  //REST API
 router.get('/catigory',isAuth,adminController.getCatigory);                //REST API
-router.get('/support/:id',isAuth,adminController.getSingleSupport);                           ////////no need
 router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);  //REST API
 router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);          //REST API
 router.get('/products',isAuth,adminController.getProducts);                //REST API
@@ -118,8 +117,15 @@ router.post('/block',[
   body('id') 
   .not().isEmpty(),
 ],isAuth,adminController.postBlock);                                       //REST API
-
+                                      //Update Routs
 //Search
 router.get('/search',isAuth,adminController.getSearch);                    //REST API
+//TotalBids manage
+router.post('/product/TotalBids/edit',[
+  body('id') 
+  .not().isEmpty(),
+  body('value') 
+  .not().isEmpty(),
+],isAuth,adminController.postTotalBid);                                    //REST API
 
 module.exports = router;
