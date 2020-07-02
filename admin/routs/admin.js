@@ -128,4 +128,13 @@ router.post('/product/TotalBids/edit',[
   .not().isEmpty(),
 ],isAuth,adminController.postTotalBid);                                    //REST API
 
+router.post('/singleUser/notfication',[
+  body('title') 
+  .not().isEmpty(),
+  body('body') 
+  .not().isEmpty(),
+  body('id') 
+  .not().isEmpty(),
+],isAuth,adminController.postSingleUserNotfication);                                    //REST API
+
 module.exports = router;

@@ -761,7 +761,7 @@ exports.getProducts = async (req, res, next) => {
       products = await Products.find({ approve: "approved" })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -775,7 +775,7 @@ exports.getProducts = async (req, res, next) => {
       products = await Products.find({ approve: "disapprove" })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -789,7 +789,7 @@ exports.getProducts = async (req, res, next) => {
       products = await Products.find({ approve: "binding" })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -807,7 +807,7 @@ exports.getProducts = async (req, res, next) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -825,7 +825,7 @@ exports.getProducts = async (req, res, next) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -840,7 +840,7 @@ exports.getProducts = async (req, res, next) => {
       products = await Products.find({ approve: "approved", pay: true })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -860,7 +860,7 @@ exports.getProducts = async (req, res, next) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -878,7 +878,7 @@ exports.getProducts = async (req, res, next) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
+          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay TotalPid"
         )
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
@@ -1638,7 +1638,8 @@ exports.getSearch = async (req, res, next) => {
 };
 
 exports.postTotalBid = async (req, res, next) => {
-  const id = req.body.id;
+  const id     = req.body.id;
+  const value  = req.body.value;
   const errors = validationResult(req);
 
   try {
@@ -1648,16 +1649,72 @@ exports.postTotalBid = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
+    const product = await Products.findById(id);
+    if (!product) {
+      const error = new Error("product not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    if (product.pay==true||product.bidStatus!='binding') {
+      const error = new Error("you can't change the value of product after bid or after pay");
+      error.statusCode = 422;
+      throw error;
+    }
 
-    await FaQ.deleteMany({
-      _id: {
-        $in: id,
-      },
+    product.TotalPid = Number(value);
+    await product.save();
+
+    res.status(200).json({
+      state:1,
+      message:'edited!!'
     });
-    res.status(201).json({
-      state: 1,
-      message: "Q&A deleted.",
+   
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postSingleUserNotfication = async (req, res, next) => {
+  const id     = req.body.id;
+  const title  = req.body.title;
+  const body  = req.body.body;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      const error = new Error("user not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    const Nbody = {
+      id: " ",
+      key: "4",
+      data: title.toString(),
+    };
+    const Nnotfi = {
+      title: title.toString(),
+      body: body.toString(),
+    };
+
+    await sendNotfication.send(user.FCMJwt, Nbody, Nnotfi, [
+      user._id
+    ]);
+    
+    res.status(200).json({
+      state:1,
+      message:'notfication sent!!'
     });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
