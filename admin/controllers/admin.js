@@ -1645,8 +1645,8 @@ exports.getSearch = async (req, res, next) => {
           { mobile: { $regex: search } },
         ],
       }).select("name email mobile realMobileNumber verification")
-      .skip((page - 1) * productPerPage)
-      .limit(productPerPage);
+      .skip((page - 1) * itemPerPage)
+      .limit(itemPerPage);
     }
     res.status(200).json({
       state: 1,
