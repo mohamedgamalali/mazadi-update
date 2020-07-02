@@ -48,7 +48,7 @@ const port      = process.env.PORT || 8080  ;
 app.use(bodyParser.json());
 
   //multer meddlewere
-app.use(multer({storage:fileStorage,fileFilter:fileFilter}).array('image'));
+app.use(multer({storage:fileStorage,fileFilter:fileFilter}).single('image'));
 app.use('/images',express.static(path.join(__dirname,'images')));
 app.use('/vid',express.static(path.join(__dirname,'vid')));
   
