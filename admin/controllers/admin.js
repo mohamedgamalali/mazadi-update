@@ -335,7 +335,7 @@ exports.postSupport = async (req, res, next) => {
 
 exports.postCatigory = async (req, res, next) => {
   const name = req.body.name;
-  const image = req.file;
+  const image = req.files;
   const errors = validationResult(req);
 
   try {
@@ -348,8 +348,8 @@ exports.postCatigory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    if (image) {
-      const error = new Error("validation faild.. you should insert image");
+    if (image.length == 0) {
+      const error = new Error(req.body);
       error.statusCode = 422;
       throw error;
     }
