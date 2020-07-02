@@ -4,13 +4,11 @@ const bodyParser= require('body-parser');
 const multer    = require('multer');
 const path      = require('path');
 const admin = require("firebase-admin");
-const cors = require('cors')
 
 require('dotenv').config();
 
 const app       = express(); 
 
-app.use(cors());
 
 const MONGODB_URI = process.env.MONGODB_URI ;
 
@@ -56,7 +54,7 @@ app.use('/vid',express.static(path.join(__dirname,'vid')));
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
-    res.setHeader('Access-Control-Allow-Headers','Origin,X-Requested-With,Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
     next();
 });
 //fireBace

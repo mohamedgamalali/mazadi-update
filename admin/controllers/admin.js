@@ -349,7 +349,7 @@ exports.postCatigory = async (req, res, next) => {
       throw error;
     }
     if (image.length == 0) {
-      const error = new Error(req.body);
+      const error = new Error("validation faild.. you should insert image");
       error.statusCode = 422;
       throw error;
     }
