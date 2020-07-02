@@ -1630,6 +1630,23 @@ exports.getSearch = async (req, res, next) => {
       .select("user desc city catigory pay note")
       .skip((page - 1) * itemPerPage)
       .limit(itemPerPage);
+    }else if (type == "user") {
+      totalItems = await User.find({
+        $or: [
+          { name: { $regex: search } },
+          { email: { $regex: search } },
+          { mobile: { $regex: search } },
+        ],
+      }).countDocuments();
+      result = await User.find({
+        $or: [
+          { name: { $regex: search } },
+          { email: { $regex: search } },
+          { mobile: { $regex: search } },
+        ],
+      }).select("name email mobile realMobileNumber verification")
+      .skip((page - 1) * productPerPage)
+      .limit(productPerPage);
     }
     res.status(200).json({
       state: 1,
