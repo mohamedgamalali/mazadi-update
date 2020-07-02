@@ -17,42 +17,42 @@ router.post('/login',[
   .not().isEmpty(),
   body('password')
   .not().isEmpty()
-],adminController.postLogin);                              //REST API
+],adminController.postLogin);                                              //REST API
 
 //admin pid manage
 
-router.post('/start',isAuth,adminController.postStart);    //REST API
-router.post('/end',isAuth,adminController.postEnd);        //REST API
+router.post('/start',isAuth,adminController.postStart);                    //REST API
+router.post('/end',isAuth,adminController.postEnd);                        //REST API
 
 //admin
-router.get('',isAuth,adminController.getTest);             //REST API
-router.get('/support/f&q',isAuth,adminController.getFaQ);  //REST API
-router.post('/support/f&q',isAuth,[                        //REST API
+router.get('',isAuth,adminController.getTest);                             //REST API
+router.get('/support/f&q',isAuth,adminController.getFaQ);                  //REST API
+router.post('/support/f&q',isAuth,[                                        //REST API
   body('answer')
   .not().isEmpty(),
   body('ask')
   .not().isEmpty()
 ],adminController.postFaQ);
-router.post('/AQ/delete',isAuth,[                        //REST API
+router.post('/AQ/delete',isAuth,[                                          //REST API
   body('id')
   .not().isEmpty()
 ],adminController.deleteFaQ);           
-router.post('/approve/:type',isAuth,adminController.postApprove); //REST API
+router.post('/approve/:type',isAuth,adminController.postApprove);          //REST API
 router.post('/disapprove/:type',isAuth,[                        
   body('id')
   .not().isEmpty(),
   body('note')
   .not().isEmpty()
-],adminController.postdisApprove); //REST API
+],adminController.postdisApprove);                                         //REST API
 
 router.post('/support',isAuth,[
     body('answer')
     .not().isEmpty(),
     body('id')
     .not().isEmpty()
-],adminController.postSupport);   //REST API
+],adminController.postSupport);                                            //REST API
 
-router.post('/support/catigory',isAuth,[    //REST API
+router.post('/support/catigory',isAuth,[                                   //REST API
   body('name')
   .not().isEmpty()
 ],adminController.postCatigory);
@@ -63,27 +63,37 @@ router.post('/support/catigory/edit',isAuth,[
   .not().isEmpty(),
   body('id') 
   .not().isEmpty()
-],adminController.postEditCat);           //REST API
+],adminController.postEditCat);                                            //REST API
 
-router.get('/support',isAuth,adminController.getSupport);           //REST API
-router.get('/catigory',isAuth,adminController.getCatigory);         //REST API
+router.get('/support',isAuth,adminController.getSupport);                  //REST API
+router.get('/catigory',isAuth,adminController.getCatigory);                //REST API
 router.get('/support/:id',isAuth,adminController.getSingleSupport);                           ////////no need
 router.get('/singleProduct/:id',isAuth,adminController.getSingleProduct);  //REST API
-router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);        //REST API
-router.get('/products',isAuth,adminController.getProducts);        //REST API
-router.get('/orders',isAuth,adminController.getOrders);           //REST API
-router.get('/users',isAuth,adminController.getUsers);             //REST API
-router.get('/singleUser/:id',isAuth,adminController.getSingleUsers);  //REST API
-router.post('/delete/:type',isAuth,adminController.postDelete);       //REST API
-router.get('/Ads',isAuth,adminController.getAds);
-router.post('/ads/edit',isAuth,adminController.postEditAds);
-router.post('/ads/delete',isAuth,adminController.postDeleteAds);
-router.post('/ads/add',isAuth,adminController.postAddAds);
-router.get('/lost',isAuth,adminController.getLost);                 //REST API
-router.post('/lost/delete',isAuth,adminController.postDeleteLost);  //REST API
+router.get('/singleAsk/:id',isAuth,adminController.getSingleAsk);          //REST API
+router.get('/products',isAuth,adminController.getProducts);                //REST API
+router.get('/orders',isAuth,adminController.getOrders);                    //REST API
+router.get('/users',isAuth,adminController.getUsers);                      //REST API
+router.get('/singleUser/:id',isAuth,adminController.getSingleUsers);       //REST API
+router.post('/delete/:type',isAuth,adminController.postDelete);            //REST API
+router.get('/Ads',isAuth,adminController.getAds);                          //REST API
+router.post('/ads/edit',[
+  body('desc') 
+  .not().isEmpty(),
+  body('id') 
+  .not().isEmpty()
+],isAuth,adminController.postEditAds);                                     //REST API
+router.post('/ads/delete',isAuth,adminController.postDeleteAds);           //REST API 
+router.post('/ads/add',[
+  body('desc') 
+  .not().isEmpty(),
+  body('type') 
+  .not().isEmpty()
+],isAuth,adminController.postAddAds);                                      //REST API
+router.get('/lost',isAuth,adminController.getLost);                        //REST API
+router.post('/lost/delete',isAuth,adminController.postDeleteLost);         //REST API
 
 //pay
-router.get('/pay',isAuth,adminController.getPay);                   //REST API
+router.get('/pay',isAuth,adminController.getPay);                          //REST API
 
 router.post('/pay/refuse/:action',[
   body('answer') 
@@ -92,7 +102,7 @@ router.post('/pay/refuse/:action',[
   .not().isEmpty()
 ],isAuth,adminController.postSendPayProduct);   
 
-router.post('/pay/accept/:action',isAuth,adminController.postPay);  //REST API
+router.post('/pay/accept/:action',isAuth,adminController.postPay);         //REST API
 
 //send notfication
 router.post('/notfication',
@@ -101,15 +111,15 @@ router.post('/notfication',
   .not().isEmpty(),
   body('body') 
   .not().isEmpty()
-],isAuth,adminController.postSendNotfication);            //REST API
+],isAuth,adminController.postSendNotfication);                             //REST API
 
 //block
 router.post('/block',[
   body('id') 
   .not().isEmpty(),
-],isAuth,adminController.postBlock);                      //REST API
+],isAuth,adminController.postBlock);                                       //REST API
 
 //Search
-router.get('/search',isAuth,adminController.getSearch)
+router.get('/search',isAuth,adminController.getSearch);                    //REST API
 
 module.exports = router;

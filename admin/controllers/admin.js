@@ -1020,18 +1020,14 @@ exports.postDelete = async (req, res, next) => {
 };
 
 exports.getAds = async (req, res, next) => {
-  let message = req.flash("error");
-  if (message.length > 0) {
-    message = message[0];
-  } else {
-    message = null;
-  }
+  const filter = req.query.filter || 'ads' ;
   try {
-    const ads = await Ads.find({});
 
-    res.render("Ads", {
-      ads: ads,
-      error: message,
+    const ads = await Ads.find({type:filter}).sort({createdAt: -1});
+
+    res.status(200).json({
+      state:1,
+      ads: ads
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1046,23 +1042,48 @@ exports.postEditAds = async (req, res, next) => {
   const phone = req.body.phone;
   const image = req.files;
   const id = req.body.id;
+  const errors = validationResult(req);
 
+    
   try {
+
+    if (!errors.isEmpty()) {
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param} in the ${
+          errors.array()[0].location
+        }`
+      );
+      error.statusCode = 422;
+      throw error;
+    }
+
     const ads = await Ads.findById(id);
+
+    if((ads.type=='helth'||ads.type=='delivery')&&!phone){
+      const error = new Error('validation faild for phone is required for helth delivery');
+      error.statusCode = 422;
+      throw error;
+    }
 
     ads.desc = desc;
     ads.phone = phone;
+
     if (image.length > 0) {
       if (path.extname(image[0].path) == ".mp4") {
-        req.flash("error", "غير مسموح بادخال فيديو!!");
-        return res.redirect("/admin/Ads");
+        const error = new Error("video not allowed");
+        error.statusCode = 422;
+        throw error;
       }
       deleteFile.deleteFile(path.join(__dirname + "/../../" + ads.imageUrl));
       ads.imageUrl = image[0].path;
     }
     await ads.save();
 
-    res.redirect("/admin/Ads");
+    res.status(200).json({
+      state:1,
+      message:'edited!!',
+      AD:ads
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1072,29 +1093,28 @@ exports.postEditAds = async (req, res, next) => {
 };
 
 exports.postDeleteAds = async (req, res, next) => {
-  const id = req.body.idCheck;
-  let ads;
+  const id = req.body.id;
+
   try {
     if (!Array.isArray(id)) {
-      ads = await Ads.findById(id);
-      if (!ads) {
-        req.flash("error", "حدث خطء!!");
-        res.redirect("/admin/Ads");
-      }
-      deleteFile.deleteFile(path.join(__dirname + "/../../" + ads.imageUrl));
-
-      const del = await Ads.findByIdAndDelete(id);
-      res.redirect("/admin/Ads");
-    } else {
-      ads = await Ads.find({ _id: { $in: id } });
+      const error = new Error("validation faild for id must be array");
+      error.statusCode = 422;
+      throw error;
+    }
+    
+      
+      const ads = await Ads.find({ _id: { $in: id } });
       await Ads.deleteMany({ _id: { $in: id } });
 
       ads.forEach((i) => {
         deleteFile.deleteFile(path.join(__dirname + "/../../" + i.imageUrl));
       });
 
-      res.redirect("/admin/Ads");
-    }
+      res.status(200).json({
+        state:1,
+        message:'deleted!!'
+      });
+    
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1108,16 +1128,30 @@ exports.postAddAds = async (req, res, next) => {
   const phone = req.body.phone;
   const image = req.files;
   const type = req.body.type;
+  const errors = validationResult(req);
+
+    
   try {
+    if (!errors.isEmpty()) {
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param} in the ${
+          errors.array()[0].location
+        }`
+      );
+      error.statusCode = 422;
+      throw error;
+    }
     if (image.length == 0) {
-      req.flash("error", "يجب ادخال صوره");
-      return res.redirect("/admin/Ads");
+      const error = new Error("validation faild you must insert image");
+      error.statusCode = 422;
+      throw error;
     }
 
     if (image.length > 0) {
       if (path.extname(image[0].path) == ".mp4") {
-        req.flash("error", "غير مسموح بادخال فيديو!!");
-        return res.redirect("/admin/Ads");
+        const error = new Error("video not allowed");
+        error.statusCode = 422;
+        throw error;
       }
     }
     const ads = new Ads({
@@ -1127,7 +1161,11 @@ exports.postAddAds = async (req, res, next) => {
       type: type,
     });
     await ads.save();
-    res.redirect("/admin/Ads");
+    res.status(201).json({
+      state:1,
+      message:'AD created !!',
+      createdAD:ads
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
