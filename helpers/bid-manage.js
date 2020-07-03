@@ -35,7 +35,7 @@ exports.endBid = async ()=>{
         const products = await Product.find({bidStatus:'started',approve:'approved'}).populate('user').populate('lastPid');
         products.forEach( p=>{
             
-            if(p.TotalPid==0){
+            if(p.lastPid==null){
                 const Sbody = {
                     id: p._id.toString(),
                     key:'5',
