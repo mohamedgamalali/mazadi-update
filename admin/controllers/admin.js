@@ -1354,9 +1354,20 @@ exports.postPay = async (req, res, next) => {
         title: `تهانينا تمت عمليه الدفع`,
         body: ` اضغط لتصفح بيانات المشتري `,
       };
-      const n = await sendNotfication.send(pay.user.FCMJwt, Sbody, Snotfi, [
+      await sendNotfication.send(pay.user.FCMJwt, Sbody, Snotfi, [
         pay.user._id,
       ]);
+
+      const clintBody = {
+        id: pay.products._id.toString(),
+        key:'2',
+        data: 'تهانينا لقد فزت بالمزاد'
+    };
+    const clintNotfi= {
+        title:`تهانينا لقد فزت بالمزاد`,
+        body:'انتظر حتي يتواصل معك صاحب الحلال'
+    };
+      await sendNotfication.send(pay.data.FCMJwt,clintBody,clintNotfi,[pay.data._id]);
 
       pay.pay = true;
 
