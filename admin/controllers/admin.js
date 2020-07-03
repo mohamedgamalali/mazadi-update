@@ -406,7 +406,8 @@ exports.getSingleProduct = async (req, res, next) => {
     const id = req.params.id;
     const product = await Products.findById(id)
       .populate({ path: "user", select: "name mobile email" })
-      .populate({ path: "catigory", select: "name" });
+      .populate({ path: "catigory", select: "name" })
+      .populate({ path: "bidArray.user", select: "name mobile email" });
     if (!product) {
       const error = new Error("product not found");
       error.statusCode = 404;
@@ -1704,6 +1705,58 @@ exports.postSingleUserNotfication = async (req, res, next) => {
     res.status(200).json({
       state:1,
       message:'notfication sent!!'
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+exports.deleteLastBid = async (req, res, next) => {
+  const id     = req.body.productId;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    const product = await Products.findById(id);
+    if(!product){
+      const error = new Error("product not found!!");
+      error.statusCode = 404;
+      throw error;
+    }
+    if(product.bidStatus!='started'){
+      const error = new Error("you can not delete after bid!!");
+      error.statusCode = 422;
+      throw error;
+    }
+    if(product.bidArray.length==0){
+      const error = new Error("no bids to delete");
+      error.statusCode = 422;
+      throw error;
+    }
+    const lastArrayPid = product.bidArray[product.bidArray.length-1];
+    if(product.bidArray.length>1){
+      const updateLast = product.bidArray[product.bidArray.length-2].user;
+      product.lastPid  = mongoose.Types.ObjectId(updateLast);
+    }else{
+      product.lastPid  = null;
+    }
+    product.TotalPid   = product.bidArray[product.bidArray.length-1].from;
+    await Products.updateOne({_id:id}, { $pull: {bidArray: lastArrayPid } } );
+    await product.save();
+    
+    res.status(200).json({
+      state:1,
+      message:'deleted'
     });
 
   } catch (err) {

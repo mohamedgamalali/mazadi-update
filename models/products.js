@@ -91,6 +91,7 @@ const productSchema = new schema({
 productSchema.methods.startBid = function(){
     this.bidStatus = 'started' ;
     this.lastPid   = null ;
+    this.bidArray  = [] ;
     this.TotalPid  = 0 ;
     return this.save();
 };

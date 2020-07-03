@@ -135,6 +135,11 @@ router.post('/singleUser/notfication',[
   .not().isEmpty(),
   body('id') 
   .not().isEmpty(),
-],isAuth,adminController.postSingleUserNotfication);                                    //REST API
+],isAuth,adminController.postSingleUserNotfication);                       //REST API
+
+router.delete('/bid',[
+  body('productId') 
+  .not().isEmpty(),
+],isAuth,adminController.deleteLastBid);                                   //REST API
 
 module.exports = router;
