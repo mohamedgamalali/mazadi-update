@@ -543,7 +543,7 @@ exports.putPid = async(req,res,next)=>{
 
        if(typeof bidVal !== 'number') {
         const error = new Error('bidVal must be number');
-        error.statusCode = 400 ;
+        error.statusCode = 422 ;
         throw error ;
         }
        const user = await User.findById(req.userId);
@@ -553,8 +553,12 @@ exports.putPid = async(req,res,next)=>{
         throw error ;
        }
        const before = product.TotalPid;
-       
-       
+       const bidArrayItem = {
+           user:req.userId,
+           from:product.TotalPid,
+           to:product.TotalPid + bidVal
+       }
+       product.bidArray.push(bidArrayItem);
        const lastUser = product.lastPid;
 
         product.TotalPid+=bidVal;

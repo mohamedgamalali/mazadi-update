@@ -36,6 +36,18 @@ const productSchema = new schema({
         type:schema.Types.ObjectId,
         ref:'user'
     },
+    bidArray:[{
+        user:{
+            type:schema.Types.ObjectId,
+            ref:'user'
+        },
+        from:{
+            type:Number
+        },
+        to:{
+            type:Number
+        }        
+    }],
     amount:{
         type:String
     },

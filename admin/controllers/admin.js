@@ -91,15 +91,6 @@ exports.getTest = async (req, res, next) => {
     const supportMessages = await SupportMessages.find({
       answer: false,
     }).countDocuments();
-    const totalProducts = await Products.find({
-      approve: "approved",
-      bidStatus: { $ne: "ended" },
-    }).countDocuments();
-
-    const totalAskProducts = await AskProduct.find({
-      approve: "approved",
-      ended: false,
-    }).countDocuments();
     const revenueProduct = await Products.find({
       pay: true,
       createdAt: {
@@ -128,10 +119,9 @@ exports.getTest = async (req, res, next) => {
 
     res.status(200).json({
       state: 1,
-      approve: products + ask,
       supportMessages: supportMessages,
-      totalProducts: totalProducts,
-      totalAsk: totalAskProducts,
+      totalProducts: products,
+      totalAsk: ask,
       revenue: revenue,
       run: admin[0].bid,
       totalUsers: totalUsers,
@@ -1552,55 +1542,56 @@ exports.getSearch = async (req, res, next) => {
   const itemPerPage = 10 ;
   let totalItems;
   let result;
+  let searchQuiry;
   try {
+    if(type == "product"|| type == "order"){
+      const catigory = await Catigory.findOne({name: new RegExp( search.trim() , 'i')}); 
+      if(!catigory){
+        searchQuiry=[
+          { age: new RegExp( search.trim() , 'i') },
+          { desc: new RegExp( search.trim() , 'i') },
+          { production: new RegExp(search.trim(), 'i') },
+          { sex: new RegExp( search.trim() , 'i') },
+          { city: new RegExp( search.trim(), 'i') },
+          { adress: new RegExp(search.trim(), 'i') },
+        ];
+      }else{
+        searchQuiry=[
+          { age: new RegExp( search.trim() , 'i') },
+          { desc: new RegExp( search.trim() , 'i') },
+          { production: new RegExp(search.trim(), 'i') },
+          { sex: new RegExp( search.trim() , 'i') },
+          { city: new RegExp( search.trim(), 'i') },
+          { adress: new RegExp(search.trim(), 'i') },
+          { catigory: catigory._id},
+        ];
+      }
+    }
     if (type == "product") {
-      totalItems = await Products.find({
-        $or: [
-          { age: { $regex: search } },
-          { desc: { $regex: search } },
-          { production: { $regex: search } },
-          { sex: { $regex: search } },
-          { city: { $regex: search } },
-          { adress: { $regex: search } },
-        ],
-      }).countDocuments();
-      result = await Products.find({
-        $or: [
-          { age: { $regex: search } },
-          { desc: { $regex: search } },
-          { production: { $regex: search } },
-          { sex: { $regex: search } },
-          { city: { $regex: search } },
-          { adress: { $regex: search } },
-        ],
-      }).select(
-          "createdAt catigory age sex user imageUrl bidStatus approve bidStatus pay"
-        )
-        .populate({ path: "user", select: "name email mobile" })
-        .populate({ path: "catigory", select: "name" })
-        .skip((page - 1) * itemPerPage)
-        .limit(itemPerPage);;
+      
+        totalItems = await Products.find({
+          $or: searchQuiry,
+        }).countDocuments();
+        result = await Products.find({
+          $or: searchQuiry,
+        }).select(
+            "createdAt catigory age sex user imageUrl bidStatus approve pay"
+          )
+          .populate({ path: "user", select: "name email mobile" })
+          .populate({ path: "catigory", select: "name" })
+          .skip((page - 1) * itemPerPage)
+          .limit(itemPerPage);
+      
+      
 
     } else if (type == "order") {
+      const catigory = await Catigory.findOne({name: new RegExp( search.trim() , 'i')});
+      
       totalItems = await AskProduct.find({
-        $or: [
-          { age: { $regex: search } },
-          { desc: { $regex: search } },
-          { production: { $regex: search } },
-          { sex: { $regex: search } },
-          { city: { $regex: search } },
-          { adress: { $regex: search } },
-        ],
+        $or: searchQuiry,
       }).countDocuments();
       result = await AskProduct.find({
-        $or: [
-          { age: { $regex: search } },
-          { desc: { $regex: search } },
-          { production: { $regex: search } },
-          { sex: { $regex: search } },
-          { city: { $regex: search } },
-          { adress: { $regex: search } },
-        ],
+        $or: searchQuiry,
       }).populate({ path: "user", select: "name email mobile" })
       .populate({ path: "catigory", select: "name" })
       .select("user desc city catigory pay note")
@@ -1609,16 +1600,16 @@ exports.getSearch = async (req, res, next) => {
     }else if (type == "user") {
       totalItems = await User.find({
         $or: [
-          { name: { $regex: search } },
-          { email: { $regex: search } },
-          { mobile: { $regex: search } },
+          { name:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { email:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { mobile:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
         ],
       }).countDocuments();
       result = await User.find({
         $or: [
-          { name: { $regex: search } },
-          { email: { $regex: search } },
-          { mobile: { $regex: search } },
+          { name: new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { email:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { mobile:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
         ],
       }).select("name email mobile realMobileNumber verification")
       .skip((page - 1) * itemPerPage)
