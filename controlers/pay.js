@@ -293,12 +293,17 @@ exports.postPayManProd = async (req, res, next) => {
     }
     if (product.pay == true) {
       const error = new Error("you already payed");
-      error.statusCode = 400;
+      error.statusCode = 422;
       throw error;
     }
     if (product.user._id != req.userId) {
       const error = new Error("you are not the product ouner");
       error.statusCode = 401;
+      throw error;
+    }
+    if (!product.lastPid) {
+      const error = new Error("لم يقم احد بالمزايده");
+      error.statusCode = 422;
       throw error;
     }
 
