@@ -1540,14 +1540,24 @@ exports.deletePay = async (req, res, next) => {
       await PayProduct.deleteMany({_id: { $in: id }});
 
     }else if(type==2){
-
+      const order = await PayOrder.find({ _id: { $in: id } });
+      if(order.length==0){
+        const error = new Error('pay not found');
+        error.statusCode = 404;
+        throw error;
+      }
+      order.forEach(e=>{
+        deleteFile.deleteFile(path.join(__dirname + "/../../" + e.pillImage));
+      });
+      await PayOrder.deleteMany({_id: { $in: id }});
+      
     }
 
     res.status(200).json({
       state:1,
       message:'pay deleted',
     });
-    
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
