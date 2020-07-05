@@ -72,8 +72,7 @@ const sendAll = async (body, notfi) => {
   try {
     
     const users = await User.find({ email: { $ne: "guest@guest.com" } }).select('FCMJwt');
-    console.log(users);
-    
+
     let result = [];
     let id = [];
     for (let u of users) {
@@ -93,7 +92,7 @@ const sendAll = async (body, notfi) => {
     const r = await send(result, body, notfi, id);
 
     return r;
-    
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
