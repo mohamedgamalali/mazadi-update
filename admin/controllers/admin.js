@@ -63,8 +63,7 @@ exports.postLogin = async (req, res, next) => {
         email: admin.email,
         adminId: admin._id.toString(),
       },
-      process.env.ADMIN_JWT_PRIVATE_KEY,
-      { expiresIn: "1h" }
+      process.env.ADMIN_JWT_PRIVATE_KEY
     );
 
     res.status(200).json({
@@ -1269,6 +1268,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
+          .sort({createdAt:-1})
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
@@ -1280,6 +1280,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
+          .sort({createdAt:-1})
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
@@ -1290,6 +1291,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
+          .sort({createdAt:-1})
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
@@ -1298,6 +1300,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
+          .sort({createdAt:-1})
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
@@ -1501,6 +1504,50 @@ exports.postSendPayProduct = async (req, res, next) => {
       state: 1,
       message: "email sent to the user",
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.deletePay = async (req, res, next) => {
+  const id     = req.body.payId;
+  const type     = req.params.type;
+
+  const errors = validationResult(req);
+  
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error(
+        `validation faild for ${errors.array()[0].param}`
+      );
+      error.statusCode = 422;
+      throw error;
+    }
+    if(type==1){
+      const Product = await PayProduct.find({ _id: { $in: id } });
+      if(Product.length==0){
+        const error = new Error('pay not found');
+        error.statusCode = 404;
+        throw error;
+      }
+      Product.forEach(e=>{
+        deleteFile.deleteFile(path.join(__dirname + "/../../" + e.pillImage));
+      });
+      
+      await PayProduct.deleteMany({_id: { $in: id }});
+
+    }else if(type==2){
+
+    }
+
+    res.status(200).json({
+      state:1,
+      message:'pay deleted',
+    });
+    
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

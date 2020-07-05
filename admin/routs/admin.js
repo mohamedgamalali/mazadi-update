@@ -142,4 +142,11 @@ router.delete('/bid',[
   .not().isEmpty(),
 ],isAuth,adminController.deleteLastBid);                                   //REST API
 
+router.delete('/pay/:type',[
+  body('payId') 
+  .not().isEmpty(),
+],isAuth,adminController.deletePay);                                       //REST API
+
 module.exports = router;
+
+//mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority
