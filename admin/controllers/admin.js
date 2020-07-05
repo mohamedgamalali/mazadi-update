@@ -1438,7 +1438,7 @@ exports.postSendNotfication = async (req, res, next) => {
       body: body.toString(),
     };
 
-    await sendNotfication.sendAll(Nbody, Nnotfi);
+    sendNotfication.sendAll(Nbody, Nnotfi);
 
     res.status(201).json({
       state: 1,
