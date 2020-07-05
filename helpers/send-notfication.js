@@ -71,7 +71,7 @@ const send = async (token, b, notfi, userId) => {
 const sendAll = async (body, notfi) => {
   try {
     
-    const users = await User.find({ email: { $ne: "guest@guest.com" } }).select('FCMJwt');
+    const users = await User.find({ email: { $ne: "guest@guest.com" } }).select('FCMJwt').lean();
     
     let result = [];
     let id = [];
