@@ -70,7 +70,10 @@ const send = async (token, b, notfi, userId) => {
 
 const sendAll = async (body, notfi) => {
   try {
+    
     const users = await User.find({ email: { $ne: "guest@guest.com" } });
+    console.log(users);
+    
     let result = [];
     let id = [];
     for (let u of users) {

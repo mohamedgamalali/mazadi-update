@@ -662,7 +662,7 @@ exports.getSingleUsers = async (req, res, next) => {
     let allUserBidsArray = [];
 
     for (let u of allUserBids.pids) {
-      if (u.product.imageUrl) {
+      if (u.product) {
         allUserBidsArray.push(u);
       }
     }
