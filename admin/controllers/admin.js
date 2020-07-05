@@ -1549,8 +1549,9 @@ exports.postBlock = async (req, res, next) => {
 
 exports.getSearch = async (req, res, next) => {
   const search = req.query.search;
-  const type = req.query.type || "product";
-  const page = req.query.page || 1 ;
+  const type = req.query.type    || "product";
+  const page = req.query.page    || 1 ;
+  const approve = req.query.approve || 'binding';
   const itemPerPage = 10 ;
   let totalItems;
   let result;
@@ -1583,9 +1584,11 @@ exports.getSearch = async (req, res, next) => {
       
         totalItems = await Products.find({
           $or: searchQuiry,
+          approve:approve
         }).countDocuments();
         result = await Products.find({
           $or: searchQuiry,
+          approve:approve
         }).select(
             "createdAt catigory age sex user imageUrl bidStatus approve pay"
           )
@@ -1597,13 +1600,14 @@ exports.getSearch = async (req, res, next) => {
       
 
     } else if (type == "order") {
-      const catigory = await Catigory.findOne({name: new RegExp( search.trim() , 'i')});
       
       totalItems = await AskProduct.find({
         $or: searchQuiry,
+        approve:approve
       }).countDocuments();
       result = await AskProduct.find({
         $or: searchQuiry,
+        approve:approve
       }).populate({ path: "user", select: "name email mobile" })
       .populate({ path: "catigory", select: "name" })
       .select("user desc city catigory pay note")
