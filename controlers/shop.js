@@ -181,7 +181,7 @@ exports.getProducts = async (req, res, next) => {
         .select("price")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    } else if (filter == "sold") {
+    } else if (filter == "sold") { 
       totalProducts = await Product.find({ pay: true }).countDocuments();
       products = await Product.find({ pay: true })
         .sort({ createdAt: -1 })
