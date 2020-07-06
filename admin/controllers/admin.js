@@ -426,14 +426,20 @@ exports.getSingleProduct = async (req, res, next) => {
 
 exports.postApprove = async (req, res, next) => {
   try {
-    const id = req.body.id;
-    const action = req.params.type;
+    const id       = req.body.id;
+    const bidStart = req.body.bidStart;
+    const action   = req.params.type;
     let product;
     let body;
     let notfi;
 
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
+      if(!bidStart){
+        const error = new Error("validation field for bidStart");
+        error.statusCode = 422;
+        throw error;
+      }
       if (!product) {
         const error = new Error("product not found");
         error.statusCode = 404;
@@ -462,6 +468,9 @@ exports.postApprove = async (req, res, next) => {
           body: "انتظر بدء المزاد في الميعاد المحدد ",
         };
       }
+      
+      product.TotalPid = Number(bidStart);
+
     } else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
       if (!product) {
