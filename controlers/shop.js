@@ -720,9 +720,8 @@ exports.getAskProduct = async (req, res, next) => {
   const filter = req.query.filter || "1";
   let total;
   let askProduct;
-  const query ;
   try {
-    if(categoryID==1){
+    if(categoryID==='1'){
       if (filter == "1") {
         total = await AskProduct.find({
           approve: "approved",
