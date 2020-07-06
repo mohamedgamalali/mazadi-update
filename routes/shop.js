@@ -42,7 +42,6 @@ router.put('/putAskProduct',isAuth,shopController.putAskProduct);
 
 router.get('/getAskProduct/:categoryID',isAuth,shopController.getAskProduct); 
 
-router.get('/AskProduct/all',isAuth,shopController.getAllAskProducts); 
 
 router.post('/putAskProductBid',isAuth,shopController.putAskProductBid); 
 
