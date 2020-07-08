@@ -1651,7 +1651,8 @@ exports.getSearch = async (req, res, next) => {
         result = await Products.find({
           $or: searchQuiry,
           approve:approve
-        }).select(
+        }).sort({ createdAt: -1 })
+        .select(
             "createdAt catigory age sex user imageUrl bidStatus approve pay"
           )
           .populate({ path: "user", select: "name email mobile" })
@@ -1670,9 +1671,10 @@ exports.getSearch = async (req, res, next) => {
       result = await AskProduct.find({
         $or: searchQuiry,
         approve:approve
-      }).populate({ path: "user", select: "name email mobile" })
+      }).sort({ createdAt: -1 })
+      .populate({ path: "user", select: "name email mobile" })
       .populate({ path: "catigory", select: "name" })
-      .select("user desc city catigory pay note")
+      .select("createdAt user desc city catigory pay note")
       .skip((page - 1) * itemPerPage)
       .limit(itemPerPage);
     }else if (type == "user") {
