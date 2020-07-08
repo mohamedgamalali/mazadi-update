@@ -700,6 +700,7 @@ exports.getOrders = async (req, res, next) => {
       }).countDocuments();
 
       products = await AskProduct.find({ approve: "approved" })
+        .sort({ createdAt: -1 })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .select("user desc city catigory pay note")
@@ -711,6 +712,7 @@ exports.getOrders = async (req, res, next) => {
       }).countDocuments();
 
       products = await AskProduct.find({ approve: "disapprove" })
+        .sort({ createdAt: -1 })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .select("user desc city catigory pay note")
@@ -722,6 +724,7 @@ exports.getOrders = async (req, res, next) => {
       }).countDocuments();
 
       products = await AskProduct.find({ approve: "binding" })
+        .sort({ createdAt: -1 })
         .populate({ path: "user", select: "name email mobile" })
         .populate({ path: "catigory", select: "name" })
         .select("user desc city catigory pay note")
