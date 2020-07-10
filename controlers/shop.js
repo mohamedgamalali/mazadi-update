@@ -235,7 +235,7 @@ exports.getProducts = async (req, res, next) => {
 exports.getAllProducts = async (req, res, next) => {
   const page = req.query.page || 1;
   const productPerPage = 10;
-  const filter = req.query.filter || "1";
+  const filter = req.query.filter || "date";
   let totalProducts;
   let products;
 
@@ -718,7 +718,7 @@ exports.getAskProduct = async (req, res, next) => {
   const categoryID = req.params.categoryID;
   const page = req.query.page || 1;
   const productPerPage = 10;
-  const filter = req.query.filter || "1";
+  const filter = req.query.filter || "date";
   let total;
   let askProduct;
   try {
