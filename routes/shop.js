@@ -50,6 +50,6 @@ router.post('/bid/restart',[
     .not().isEmpty()
 ],isAuth,shopController.postRestart); 
 
-
+router.get('/prize',isAuth,shopController.getPrize);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const Product = require("../models/products");
 const User = require("../models/user");
 const Catigory = require("../models/catigory");
 const AskProduct = require("../models/askProduct");
+const Prize = require("../models/prize");
 
 const io = require("../socket.io/socket");
 
@@ -1061,6 +1062,34 @@ exports.postRestart = async (req, res, next) => {
     await product.restartBid();
 
     res.status(200).json({ state: 1, message: "restarted" });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+exports.getPrize = async (req, res, next) => {
+  const page        = req.query.page;
+  const itemPerPage = 20; 
+
+  try {
+    
+    const TotalPrizes = await Prize.find({})
+    .countDocuments();
+    const prizes = await Prize.find({})
+    .sort({createdAt:-1})
+    .skip((page - 1) * itemPerPage)
+    .limit(itemPerPage);
+
+    res.status(200).json({
+      state:1,
+      TotalPrizes:TotalPrizes,
+      prizes:prizes,
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

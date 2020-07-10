@@ -30,6 +30,7 @@ const FaQ = require("../../models/f&Q");
 const Ads = require("../../models/Ads");
 const Lost = require("../../models/lost");
 const Admin = require("../../models/admin");
+const Prize = require("../../models/prize");
 
 exports.postLogin = async (req, res, next) => {
   try {
@@ -1842,6 +1843,170 @@ exports.deleteLastBid = async (req, res, next) => {
     });
 
   } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+//Prize
+
+exports.prizePost = async (req, res, next) => {
+  const userName     = req.body.userName;
+  const prizeName     = req.body.prizeName;
+  const price     = req.body.price;
+  const image     = req.files;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    
+    if (image.length == 0) {
+      const error = new Error("validation faild for image");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    const newPrize = new Prize({
+      imageUrl:image[0].path,
+      userName:userName,
+      prizeName:prizeName,
+      price:Number(price),
+    });
+
+    await newPrize.save();
+
+    res.status(201).json({
+      state:1,
+      prize:newPrize
+    });
+   
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getPrize = async (req, res, next) => {
+  const page        = req.query.page;
+  const itemPerPage = 10; 
+
+  try {
+    
+    const TotalPrizes = await Prize.find({})
+    .countDocuments();
+    const prizes = await Prize.find({})
+    .sort({createdAt:-1})
+    .skip((page - 1) * itemPerPage)
+    .limit(itemPerPage);
+
+    res.status(200).json({
+      state:1,
+      TotalPrizes:TotalPrizes,
+      prizes:prizes,
+    });
+    
+     
+   
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+exports.postEditPrize = async (req, res, next) => {
+  const userName     = req.body.userName;
+  const prizeName     = req.body.prizeName;
+  const price     = req.body.price;
+  const id     = req.body.id;
+  const image     = req.files;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    
+    const prize = await Prize.findById(id);
+
+    if(!prize){
+      const error = new Error("prize not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    prize.userName = userName;
+    prize.prizeName = prizeName;
+    prize.price = Number(price);
+    
+    if(image.length>0){
+      prize.imageUrl = image[0].path;
+    }
+
+    await prize.save();
+
+    res.status(200).json({
+      state:1,
+      message:'edited!!'
+    });
+
+    res.status(201).json({
+      state:1,
+      prize:newPrize
+    });
+   
+  }catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.deletePrize = async (req, res, next) => {
+  const id     = req.body.id;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    if(!Array.isArray(id)){
+      const error = new Error("validation faild..id must be array");
+      error.statusCode = 422;
+      throw error;
+    }
+    const prizes = await Prize.find({ _id: { $in: id } });
+    
+    prizes.forEach((i) => {
+      deleteFile.deleteFile(path.join(__dirname + "/../../" + i.imageUrl));
+    });
+
+    await Prize.deleteMany({ _id: { $in: id } });
+
+    res.status(200).json({
+      state:1,
+      message:'deleted!!'
+    });
+    
+   
+  }catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }

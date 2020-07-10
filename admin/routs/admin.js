@@ -147,6 +147,37 @@ router.delete('/pay/:type',[
   .not().isEmpty(),
 ],isAuth,adminController.deletePay);                                       //REST API
 
+//Prize
+
+router.post('/prize',[
+  body('userName') 
+  .not().isEmpty(),
+  body('prizeName') 
+  .not().isEmpty(),
+  body('price') 
+  .not().isEmpty()
+  .isNumeric(),
+],isAuth,adminController.prizePost);
+
+router.get('/prize',isAuth,adminController.getPrize);
+
+router.post('/prize/edit',[
+  body('userName') 
+  .not().isEmpty(),
+  body('prizeName') 
+  .not().isEmpty(),
+  body('id') 
+  .not().isEmpty(),
+  body('price') 
+  .not().isEmpty()
+  .isNumeric(),
+],isAuth,adminController.postEditPrize);
+
+router.delete('/prize/delete',[
+  body('id') 
+  .not().isEmpty()
+],isAuth,adminController.deletePrize);
+
 module.exports = router;
 
-//mongodb+srv://mohamed:gamal@cluster0-puljc.mongodb.net/animalStore
+//mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority
