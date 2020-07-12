@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const deleteFile = require("../../helpers/file");
 const sendNotfication = require("../../helpers/send-notfication");
 const bidManage = require("../../helpers/bid-manage");
+const DBmanage = require("../../helpers/DB-manage");
 
 const transport = nodemailer.createTransport({
   host: "az1-ts1.a2hosting.com",
@@ -1456,6 +1457,24 @@ exports.postSendNotfication = async (req, res, next) => {
       state: 1,
       message: "notfication sent to all the users",
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postClearNotfication = async (req, res, next) => {
+
+  try {
+    DBmanage.notfications();
+    
+    res.status(200).json({
+      state:1,
+      message:'clared...',
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

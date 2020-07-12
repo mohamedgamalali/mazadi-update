@@ -1037,7 +1037,7 @@ exports.postRestart = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate('lastPid');
 
     if (!product) {
       const error = new Error("product not found!!..");
@@ -1059,6 +1059,19 @@ exports.postRestart = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
+    const body = {
+      id: product._id.toString(),
+      key: "2",
+      data: "ناسف لقد تم نقل الحلال للمزاد القادم",
+    };
+    const notfi = {
+      title: `ناسف لقد تم نقل الحلال للمزاد القادم`,
+      body: "اذا كنت ترغب به يمكنك التواصل معنا",
+    };
+
+    await sendNotfication.send(product.lastPid.FCMJwt, body, notfi, [
+      product.lastPid._id,
+    ]);
     await product.restartBid();
 
     res.status(200).json({ state: 1, message: "restarted" });
