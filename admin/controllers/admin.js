@@ -915,7 +915,7 @@ exports.postDelete = async (req, res, next) => {
         throw error;
       }
       product.forEach((i) => {
-        if (i.pay == true || i.bidStatus == "started") {
+        if (i.pay == true) {
           const error = new Error(
             "you can not delete the product after pay or during the bid"
           );
