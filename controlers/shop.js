@@ -1037,7 +1037,7 @@ exports.postRestart = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    const product = await Product.findById(productId).populate('lastPid');
+    const product = await Product.findById(productId).populate({path:'lastPid',select:'FCMJwt'});
 
     if (!product) {
       const error = new Error("product not found!!..");
