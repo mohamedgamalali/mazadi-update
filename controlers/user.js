@@ -181,7 +181,7 @@ exports.putEditProfile = async (req, res, next) => {
         if (user.email !== email) {
             const checkUser = await User.findOne({ email: email }).select('email');
             if (checkUser) {
-                const error = new Error('invalid email allready taken');
+                const error = new Error('البريد الالكتروني موجود بالفعل');
                 error.statusCode = 422;
                 throw error;
             }
@@ -190,13 +190,13 @@ exports.putEditProfile = async (req, res, next) => {
         }
         if (user.mobile !== mobile) {
             if (!validMobile) {
-                const error = new Error('invalid mobile number!!');
+                const error = new Error('ادخل رقم هاتف صحيح');
                 error.statusCode = 422;
                 throw error;
             }
             const checkUser = await User.findOne({ mobile: mobile }).select('email');
             if (checkUser) {
-                const error = new Error('invalid mobile allready taken');
+                const error = new Error('الهاتف موجود بالفعل');
                 error.statusCode = 422;
                 throw error;
             }
