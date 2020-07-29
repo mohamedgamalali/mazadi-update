@@ -384,6 +384,7 @@ exports.getFev = async (req, res, next) => {
 exports.getNotification = async (req, res, next) => {
     const page = req.query.page || 1;
     const itemBerPage = 10;
+    const notf = [];
     try {
         // const user = await User.findById(req.userId);
         // if (!user) {
@@ -414,9 +415,13 @@ exports.getNotification = async (req, res, next) => {
             .sort({ createdAt: -1 })
             .skip((page - 1) * itemBerPage)
             .limit(itemBerPage);
+        for (N of userNotfi) {
+            notf.push({
+                notfication: N,
+            });
+        }
 
-
-        res.status(200).json({ state: 1, Notifications:{notfication:userNotfi}, totalNotfi: totalNotfi });
+        res.status(200).json({ state: 1, Notifications: notf, totalNotfi: totalNotfi });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
