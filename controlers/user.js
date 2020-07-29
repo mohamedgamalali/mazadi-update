@@ -5,6 +5,8 @@ const Product = require('../models/products');
 const User = require('../models/user');
 const Catigory = require('../models/catigory');
 const AskProduct = require('../models/askProduct');
+const Notfications = require("../models/notfication");
+
 
 
 exports.postFev = async (req, res, next) => {
@@ -384,29 +386,37 @@ exports.getNotification = async (req, res, next) => {
     const itemBerPage = 10;
     let userNotfi = [];
     try {
-        const user = await User.findById(req.userId);
-        if (!user) {
-            const error = new Error('user not found');
-            error.statusCode = 404;
-            throw error;
-        }
-        const totalNotfi = user.notfications.length;
-        let start = totalNotfi - (page - 1) * itemBerPage;
+        // const user = await User.findById(req.userId);
+        // if (!user) {
+        //     const error = new Error('user not found');
+        //     error.statusCode = 404;
+        //     throw error;
+        // }
+        // const totalNotfi = user.notfications.length;
+        // let start = totalNotfi - (page - 1) * itemBerPage;
 
 
 
-        let c = 0;
-        let count = 0;
-        for (count = start - 1; count >= 0; count--) {
-            if (c < itemBerPage) {
-                userNotfi.push({
-                    notfication: user.notfications[count],
-                });
-                c++;
-            } else {
-                break;
-            }
-        }
+        // let c = 0;
+        // let count = 0;
+        // for (count = start - 1; count >= 0; count--) {
+        //     if (c < itemBerPage) {
+        //         userNotfi.push({
+        //             notfication: user.notfications[count],
+        //         });
+        //         c++;
+        //     } else {
+        //         break;
+        //     }
+        // }
+
+        const totalNotfi = await Notfications.find({user:req.userId}).countDocuments();
+        const userNotfi  = await Notfications.find({user:req.userId})
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * itemBerPage)
+        .limit(itemBerPage);
+
+
         res.status(200).json({ state: 1, Notifications: userNotfi, totalNotfi: totalNotfi });
     } catch (err) {
         if (!err.statusCode) {

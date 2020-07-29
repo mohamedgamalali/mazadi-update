@@ -1,20 +1,29 @@
 const admin = require("firebase-admin");
 const User = require("../models/user");
+const Notfications = require("../models/notfication");
 const io = require("../socket.io/socket");
 
 const send = async (token, b, notfi, userId) => {
   try {
     userId.forEach(async (u) => {
       try {
-        const user = await User.findById(u);
+        // const user = await User.findById(u);
 
-        user.notfications.push({
-          data: b,
-          notification: notfi,
-          date: new Date().getTime().toString(),
+        // user.notfications.push({
+        //   data: b,
+        //   notification: notfi,
+        //   date: new Date().getTime().toString(),
+        // });
+
+        // await user.save();
+        const newNot = new Notfications({
+          user:u,
+          data:b,
+          notification:notfi,
+          date:new Date().getTime().toString()
         });
-
-        await user.save();
+        await newNot.save();
+        
         io.getIO().emit("notfication", {
           action: "notfication",
           userId: u,
