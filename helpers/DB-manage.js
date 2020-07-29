@@ -1,22 +1,28 @@
 
 const User = require('../models/user');
+const Notfication = require('../models/notfication');
 
-exports.notfications = async()=>{
+exports.allNotficationClean = async()=>{
     try{
-        const user = await User.find({})
-        //console.log(user);
-        const copmDate = new Date()-518400000;
+        const user = await User.find({ email: { $ne: "guest@guest.com" } }).select('notfications').lean();
+
+        console.log(user);
         
-        for(u of user){
-            for(n of u.notfications){
-                if(new Date(Number(n.date))<= copmDate ){
-                    console.log('day = ' + new Date(Number(n.date)).getDate());
-                    
-                    console.log(n);
-                }
-            }
-            
-        }
+        
+    }catch(err){
+        if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          throw err;
+    }
+}
+
+exports.notfication = async()=>{
+    try{
+        const notfication = await Notfication.find({  }).select('notfications').lean();
+
+        
+        
         
     }catch(err){
         if (!err.statusCode) {

@@ -208,11 +208,11 @@ exports.putEditProfile = async (req, res, next) => {
             user.name = name;
         }
         const newUser = await user.save();
-        res.status(201).json({ 
+        res.status(201).json({
             state: 1,
             name: newUser.name,
-            email:newUser.email,
-            mobile:newUser.mobile,
+            email: newUser.email,
+            mobile: newUser.mobile,
         });
     } catch (err) {
         if (!err.statusCode) {
@@ -384,7 +384,6 @@ exports.getFev = async (req, res, next) => {
 exports.getNotification = async (req, res, next) => {
     const page = req.query.page || 1;
     const itemBerPage = 10;
-    let userNotfi = [];
     try {
         // const user = await User.findById(req.userId);
         // if (!user) {
@@ -410,14 +409,14 @@ exports.getNotification = async (req, res, next) => {
         //     }
         // }
 
-        const totalNotfi = await Notfications.find({user:req.userId}).countDocuments();
-        const userNotfi  = await Notfications.find({user:req.userId})
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * itemBerPage)
-        .limit(itemBerPage);
+        const totalNotfi = await Notfications.find({ user: req.userId }).countDocuments();
+        const userNotfi = await Notfications.find({ user: req.userId })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * itemBerPage)
+            .limit(itemBerPage);
 
 
-        res.status(200).json({ state: 1, Notifications: userNotfi, totalNotfi: totalNotfi });
+        res.status(200).json({ state: 1, Notifications:{notfication:userNotfi}, totalNotfi: totalNotfi });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
