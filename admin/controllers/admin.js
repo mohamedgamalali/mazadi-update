@@ -1465,27 +1465,28 @@ exports.postSendNotfication = async (req, res, next) => {
   }
 };
 
-// exports.postClearNotfication = async (req, res, next) => {
+exports.postClearNotfication = async (req, res, next) => {
 
-//   try {
-//     await DBmanage.allNotficationClean();
+  try {
+    await DBmanage.allNotficationClean();
     
-//     res.status(200).json({
-//       state:1,
-//       message:'clared...',
-//     });
+    res.status(200).json({
+      state:1,
+      message:'clared...',
+    });
 
-//   } catch (err) {
-//     if (!err.statusCode) {
-//       err.statusCode = 500;
-//     }
-//     next(err);
-//   }
-// };
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
 exports.postManageNotfication = async (req, res, next) => {
 
   try {
+    
     await DBmanage.notfication();
     
     res.status(200).json({

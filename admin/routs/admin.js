@@ -178,7 +178,7 @@ router.delete('/prize/delete',[
   .not().isEmpty()
 ],isAuth,adminController.deletePrize);
 
-// router.post('/notfication/clear',isAuth,adminController.postClearNotfication);
+router.post('/notfication/clear',isAuth,adminController.postClearNotfication);
 
 router.post('/notfication/manage',isAuth,adminController.postManageNotfication);
 

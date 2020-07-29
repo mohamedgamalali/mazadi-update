@@ -4,7 +4,7 @@ const Notfication = require('../models/notfication');
 
 exports.allNotficationClean = async()=>{
     try{
-        const user = await User.find({ email: { $ne: "guest@guest.com" } }).select('notfications').lean();
+        const user = await User.updateMany({ email: { $ne: "guest@guest.com" }}, {$set:{notfications: []}});
 
         console.log(user);
         
@@ -19,11 +19,7 @@ exports.allNotficationClean = async()=>{
 
 exports.notfication = async()=>{
     try{
-        const notfication = await Notfication.find({  }).select('notfications').lean();
-
-        
-        
-        
+        const notfication = await Notfication.deleteMany({createdAt:{$lt: new Date().getTime()-432000000}});
     }catch(err){
         if (!err.statusCode) {
             err.statusCode = 500;
