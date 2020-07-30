@@ -178,11 +178,12 @@ router.delete('/prize/delete',[
   .not().isEmpty()
 ],isAuth,adminController.deletePrize);
 
-router.post('/notfication/clear',isAuth,adminController.postClearNotfication);
+// router.post('/notfication/clear',isAuth,adminController.postClearNotfication);
 
 router.post('/notfication/manage',isAuth,adminController.postManageNotfication);
 
 module.exports = router;
 
-//mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority
+//mongodb+srv://mohamed:gamal@cluster0-puljc.mongodb.net/animalStore
+
 
