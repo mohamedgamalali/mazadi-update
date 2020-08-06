@@ -134,6 +134,7 @@ exports.getProducts = async (req, res, next) => {
       products = await Product.find({ catigory: catigory, approve: "approved" })
         .where("bidStatus")
         .ne("ended")
+        .sort({ createdAt: -1 })
         .select("approve")
         .select("imageUrl")
         .select("desc")
@@ -209,6 +210,7 @@ exports.getProducts = async (req, res, next) => {
         approve: "approved",
         city: filter,
       })
+        .sort({ createdAt: -1 })
         .where("bidStatus")
         .ne("ended")
         .select("approve")
