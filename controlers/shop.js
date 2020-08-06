@@ -211,6 +211,7 @@ exports.getProducts = async (req, res, next) => {
         city: filter,
       })
         .sort({ createdAt: -1 })
+
         .where("bidStatus")
         .ne("ended")
         .select("approve")
