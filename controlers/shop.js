@@ -183,7 +183,7 @@ exports.getProducts = async (req, res, next) => {
         .select("price")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
-    } else if (filter == "sold") { 
+    } else if (filter == "sold") {
       totalProducts = await Product.find({ pay: true }).countDocuments();
       products = await Product.find({ pay: true })
         .sort({ createdAt: -1 })
@@ -353,26 +353,26 @@ exports.getCatigory = async (req, res, next) => {
         catigory: find._id,
         approve: "approved",
       })
-      .where("bidStatus")
-      .ne("ended")
-      .countDocuments();
+        .where("bidStatus")
+        .ne("ended")
+        .countDocuments();
       const totalOr = await AskProduct.find({
         catigory: find._id,
         approve: "approved",
         ended: false,
       })
-      .countDocuments();
+        .countDocuments();
       totalProducts.push(totalPro);
       totalOrders.push(totalOr);
     }
 
     res.status(200).json({
-        state: 1,
-        catigories: catigories,
-        totalUsers: users,
-        productPerCat: totalProducts,
-        ordersPerCat: totalOrders,
-      });
+      state: 1,
+      catigories: catigories,
+      totalUsers: users,
+      productPerCat: totalProducts,
+      ordersPerCat: totalOrders,
+    });
 
   } catch (err) {
     if (!err.statusCode) {
@@ -725,7 +725,7 @@ exports.getAskProduct = async (req, res, next) => {
   let total;
   let askProduct;
   try {
-    if(categoryID==='1'){
+    if (categoryID === '1') {
       if (filter == "1") {
         total = await AskProduct.find({
           approve: "approved",
@@ -769,58 +769,58 @@ exports.getAskProduct = async (req, res, next) => {
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
-    }else{
-      
-    if (filter == "1") {
-      total = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        ended: false,
-      }).countDocuments();
-      askProduct = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        ended: false,
-      })
-        .select("desc")
-        .select("approve")
-        .skip((page - 1) * productPerPage)
-        .limit(productPerPage);
-    } else if (filter == "date") {
-      total = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        ended: false,
-      }).countDocuments();
-      askProduct = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        ended: false,
-      })
-        .sort({ createdAt: -1 })
-        .select("desc")
-        .select("approve")
-        .skip((page - 1) * productPerPage)
-        .limit(productPerPage);
     } else {
-      total = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        city: filter,
-        ended: false,
-      }).countDocuments();
-      askProduct = await AskProduct.find({
-        catigory: categoryID,
-        approve: "approved",
-        city: filter,
-        ended: false,
-      })
-        .select("desc")
-        .select("approve")
-        .skip((page - 1) * productPerPage)
-        .limit(productPerPage);
+
+      if (filter == "1") {
+        total = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          ended: false,
+        }).countDocuments();
+        askProduct = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          ended: false,
+        })
+          .select("desc")
+          .select("approve")
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      } else if (filter == "date") {
+        total = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          ended: false,
+        }).countDocuments();
+        askProduct = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          ended: false,
+        })
+          .sort({ createdAt: -1 })
+          .select("desc")
+          .select("approve")
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      } else {
+        total = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          city: filter,
+          ended: false,
+        }).countDocuments();
+        askProduct = await AskProduct.find({
+          catigory: categoryID,
+          approve: "approved",
+          city: filter,
+          ended: false,
+        })
+          .select("desc")
+          .select("approve")
+          .skip((page - 1) * productPerPage)
+          .limit(productPerPage);
+      }
     }
-  }
 
 
     return res
@@ -1040,7 +1040,7 @@ exports.postRestart = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    const product = await Product.findById(productId).populate({path:'lastPid',select:'FCMJwt'});
+    const product = await Product.findById(productId).populate({ path: 'lastPid', select: 'FCMJwt' });
 
     if (!product) {
       const error = new Error("product not found!!..");
@@ -1062,7 +1062,7 @@ exports.postRestart = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
-    if(product.lastPid){
+    if (product.lastPid) {
       const body = {
         id: product._id.toString(),
         key: "2",
@@ -1076,7 +1076,7 @@ exports.postRestart = async (req, res, next) => {
         product.lastPid._id,
       ]);
     }
-    
+
     await product.restartBid();
 
     res.status(200).json({ state: 1, message: "restarted" });
@@ -1090,22 +1090,22 @@ exports.postRestart = async (req, res, next) => {
 
 
 exports.getPrize = async (req, res, next) => {
-  const page        = req.query.page;
-  const itemPerPage = 20; 
+  const page = req.query.page;
+  const itemPerPage = 20;
 
   try {
-    
+
     const TotalPrizes = await Prize.find({})
-    .countDocuments();
+      .countDocuments();
     const prizes = await Prize.find({})
-    .sort({createdAt:-1})
-    .skip((page - 1) * itemPerPage)
-    .limit(itemPerPage);
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * itemPerPage)
+      .limit(itemPerPage);
 
     res.status(200).json({
-      state:1,
-      TotalPrizes:TotalPrizes,
-      prizes:prizes,
+      state: 1,
+      TotalPrizes: TotalPrizes,
+      prizes: prizes,
     });
 
   } catch (err) {

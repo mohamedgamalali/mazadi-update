@@ -9,6 +9,8 @@ const deleteFile = require("../../helpers/file");
 const sendNotfication = require("../../helpers/send-notfication");
 const bidManage = require("../../helpers/bid-manage");
 const DBmanage = require("../../helpers/DB-manage");
+const ObjectId = require('mongoose').Types.ObjectId;
+
 
 const transport = nodemailer.createTransport({
   host: "az1-ts1.a2hosting.com",
@@ -262,7 +264,7 @@ exports.postSupport = async (req, res, next) => {
     if (!errors.isEmpty()) {
       const error = new Error(
         `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
+        errors.array()[0].location
         }`
       );
       error.statusCode = 422;
@@ -309,7 +311,7 @@ exports.postCatigory = async (req, res, next) => {
     if (!errors.isEmpty()) {
       const error = new Error(
         `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
+        errors.array()[0].location
         }`
       );
       error.statusCode = 422;
@@ -369,7 +371,7 @@ exports.postEditCat = async (req, res, next) => {
     if (!errors.isEmpty()) {
       const error = new Error(
         `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
+        errors.array()[0].location
         }`
       );
       error.statusCode = 422;
@@ -428,14 +430,14 @@ exports.getSingleProduct = async (req, res, next) => {
 
 exports.postApprove = async (req, res, next) => {
   try {
-    const id       = req.body.id;
+    const id = req.body.id;
     const bidStart = req.body.bidStart || 0;
-    const action   = req.params.type;
+    const action = req.params.type;
     let product;
     let body;
     let notfi;
 
-    
+
     if (action == 1) {
       product = await Products.findByIdAndUpdate(id).populate("user");
       if (!product) {
@@ -443,31 +445,18 @@ exports.postApprove = async (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      const admin = await Admin.find({});
-      if (admin[0].bid == true) {
-        product.bidStatus = "started";
-        body = {
-          id: product._id.toString(),
-          key: "2",
-          data: "تهانينا لقد تمت الموافقه على منتجك",
-        };
-        notfi = {
-          title: `تهانينا تمت الموافقة على منتجك وبدء المزاد`,
-          body: "اصبح من الممكن المزايدة عليه",
-        };
-      } else {
-        body = {
-          id: product._id.toString(),
-          key: "2",
-          data: "تهانينا لقد تمت الموافقه على منتجك",
-        };
-        notfi = {
-          title: `تمت الموافقة على منتجك `,
-          body: "انتظر بدء المزاد في الميعاد المحدد ",
-        };
-      }
-      
+
+      body = {
+        id: product._id.toString(),
+        key: "2",
+        data: "تهانينا لقد تمت الموافقه على منتجك",
+      };
+      notfi = {
+        title: `تمت الموافقة على منتجك `,
+        body: "انتظر بدء المزاد في الميعاد المحدد ",
+      };
       product.TotalPid = Number(bidStart);
+
 
     } else if (action == 2) {
       product = await AskProduct.findByIdAndUpdate(id).populate("user");
@@ -996,13 +985,13 @@ exports.postDelete = async (req, res, next) => {
 };
 
 exports.getAds = async (req, res, next) => {
-  const filter = req.query.filter || 'ads' ;
+  const filter = req.query.filter || 'ads';
   try {
 
-    const ads = await Ads.find({type:filter}).sort({createdAt: -1});
+    const ads = await Ads.find({ type: filter }).sort({ createdAt: -1 });
 
     res.status(200).json({
-      state:1,
+      state: 1,
       ads: ads
     });
   } catch (err) {
@@ -1020,13 +1009,13 @@ exports.postEditAds = async (req, res, next) => {
   const id = req.body.id;
   const errors = validationResult(req);
 
-    
+
   try {
 
     if (!errors.isEmpty()) {
       const error = new Error(
         `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
+        errors.array()[0].location
         }`
       );
       error.statusCode = 422;
@@ -1035,7 +1024,7 @@ exports.postEditAds = async (req, res, next) => {
 
     const ads = await Ads.findById(id);
 
-    if((ads.type=='helth'||ads.type=='delivery')&&!phone){
+    if ((ads.type == 'helth' || ads.type == 'delivery') && !phone) {
       const error = new Error('validation faild for phone is required for helth delivery');
       error.statusCode = 422;
       throw error;
@@ -1056,9 +1045,9 @@ exports.postEditAds = async (req, res, next) => {
     await ads.save();
 
     res.status(200).json({
-      state:1,
-      message:'edited!!',
-      AD:ads
+      state: 1,
+      message: 'edited!!',
+      AD: ads
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1077,20 +1066,20 @@ exports.postDeleteAds = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    
-      
-      const ads = await Ads.find({ _id: { $in: id } });
-      await Ads.deleteMany({ _id: { $in: id } });
 
-      ads.forEach((i) => {
-        deleteFile.deleteFile(path.join(__dirname + "/../../" + i.imageUrl));
-      });
 
-      res.status(200).json({
-        state:1,
-        message:'deleted!!'
-      });
-    
+    const ads = await Ads.find({ _id: { $in: id } });
+    await Ads.deleteMany({ _id: { $in: id } });
+
+    ads.forEach((i) => {
+      deleteFile.deleteFile(path.join(__dirname + "/../../" + i.imageUrl));
+    });
+
+    res.status(200).json({
+      state: 1,
+      message: 'deleted!!'
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1106,12 +1095,12 @@ exports.postAddAds = async (req, res, next) => {
   const type = req.body.type;
   const errors = validationResult(req);
 
-    
+
   try {
     if (!errors.isEmpty()) {
       const error = new Error(
         `validation faild for ${errors.array()[0].param} in the ${
-          errors.array()[0].location
+        errors.array()[0].location
         }`
       );
       error.statusCode = 422;
@@ -1138,9 +1127,9 @@ exports.postAddAds = async (req, res, next) => {
     });
     await ads.save();
     res.status(201).json({
-      state:1,
-      message:'AD created !!',
-      createdAD:ads
+      state: 1,
+      message: 'AD created !!',
+      createdAD: ads
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -1278,7 +1267,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
-          .sort({createdAt:-1})
+          .sort({ createdAt: -1 })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
@@ -1290,7 +1279,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
-          .sort({createdAt:-1})
+          .sort({ createdAt: -1 })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
@@ -1301,7 +1290,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "products", select: "imageUrl TotalPid" })
-          .sort({createdAt:-1})
+          .sort({ createdAt: -1 })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (type == 2) {
@@ -1310,7 +1299,7 @@ exports.getPay = async (req, res, next) => {
           .populate({ path: "user", select: "name mobile email" })
           .populate({ path: "data", select: "name mobile email" })
           .populate({ path: "order", select: "desc sex city" })
-          .sort({createdAt:-1})
+          .sort({ createdAt: -1 })
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
@@ -1373,14 +1362,14 @@ exports.postPay = async (req, res, next) => {
 
       const clintBody = {
         id: pay.products._id.toString(),
-        key:'2',
+        key: '2',
         data: 'تهانينا لقد فزت بالمزاد'
-    };
-    const clintNotfi= {
-        title:`تهانينا لقد فزت بالمزاد`,
-        body:'انتظر حتي يتواصل معك صاحب الحلال'
-    };
-      await sendNotfication.send(pay.data.FCMJwt,clintBody,clintNotfi,[pay.data._id]);
+      };
+      const clintNotfi = {
+        title: `تهانينا لقد فزت بالمزاد`,
+        body: 'انتظر حتي يتواصل معك صاحب الحلال'
+      };
+      await sendNotfication.send(pay.data.FCMJwt, clintBody, clintNotfi, [pay.data._id]);
 
       pay.pay = true;
 
@@ -1469,7 +1458,7 @@ exports.postSendNotfication = async (req, res, next) => {
 
 //   try {
 //     await DBmanage.allNotficationClean();
-    
+
 //     res.status(200).json({
 //       state:1,
 //       message:'clared...',
@@ -1486,12 +1475,12 @@ exports.postSendNotfication = async (req, res, next) => {
 exports.postManageNotfication = async (req, res, next) => {
 
   try {
-    
+
     await DBmanage.notfication();
-    
+
     res.status(200).json({
-      state:1,
-      message:'clared...',
+      state: 1,
+      message: 'clared...',
     });
 
   } catch (err) {
@@ -1560,11 +1549,11 @@ exports.postSendPayProduct = async (req, res, next) => {
 };
 
 exports.deletePay = async (req, res, next) => {
-  const id     = req.body.payId;
-  const type     = req.params.type;
+  const id = req.body.payId;
+  const type = req.params.type;
 
   const errors = validationResult(req);
-  
+
   try {
     if (!errors.isEmpty()) {
       const error = new Error(
@@ -1573,36 +1562,36 @@ exports.deletePay = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    if(type==1){
+    if (type == 1) {
       const Product = await PayProduct.find({ _id: { $in: id } });
-      if(Product.length==0){
+      if (Product.length == 0) {
         const error = new Error('pay not found');
         error.statusCode = 404;
         throw error;
       }
-      Product.forEach(e=>{
+      Product.forEach(e => {
         deleteFile.deleteFile(path.join(__dirname + "/../../" + e.pillImage));
       });
-      
-      await PayProduct.deleteMany({_id: { $in: id }});
 
-    }else if(type==2){
+      await PayProduct.deleteMany({ _id: { $in: id } });
+
+    } else if (type == 2) {
       const order = await PayOrder.find({ _id: { $in: id } });
-      if(order.length==0){
+      if (order.length == 0) {
         const error = new Error('pay not found');
         error.statusCode = 404;
         throw error;
       }
-      order.forEach(e=>{
+      order.forEach(e => {
         deleteFile.deleteFile(path.join(__dirname + "/../../" + e.pillImage));
       });
-      await PayOrder.deleteMany({_id: { $in: id }});
-      
+      await PayOrder.deleteMany({ _id: { $in: id } });
+
     }
 
     res.status(200).json({
-      state:1,
-      message:'pay deleted',
+      state: 1,
+      message: 'pay deleted',
     });
 
   } catch (err) {
@@ -1653,93 +1642,107 @@ exports.postBlock = async (req, res, next) => {
 
 exports.getSearch = async (req, res, next) => {
   const search = req.query.search;
-  const type = req.query.type    || "product";
-  const page = req.query.page    || 1 ;
+  const type = req.query.type || "product";
+  const page = req.query.page || 1;
   const approve = req.query.approve || 'binding';
-  const itemPerPage = 10 ;
+  const itemPerPage = 10;
   let totalItems;
   let result;
   let searchQuiry;
+  let isId = false;
   try {
-    if(type == "product"|| type == "order"){
-      const catigory = await Catigory.findOne({name: new RegExp( search.trim() , 'i')}); 
-      if(!catigory){
-        searchQuiry=[
-          { age: new RegExp( search.trim() , 'i') },
-          { desc: new RegExp( search.trim() , 'i') },
-          { production: new RegExp(search.trim(), 'i') },
-          { sex: new RegExp( search.trim() , 'i') },
-          { city: new RegExp( search.trim(), 'i') },
-          { adress: new RegExp(search.trim(), 'i') },
-        ];
+    const searchId = new ObjectId(search.toString());
+
+    if (searchId == search) {
+      isId = true;
+    }
+
+    if (type == "product" || type == "order") {
+      if (!isId) {
+        const catigory = await Catigory.findOne({ name: new RegExp(search.trim(), 'i') });
+        if (!catigory) {
+          searchQuiry = [
+            { age: new RegExp(search.trim(), 'i') },
+            { desc: new RegExp(search.trim(), 'i') },
+            { production: new RegExp(search.trim(), 'i') },
+            { sex: new RegExp(search.trim(), 'i') },
+            { city: new RegExp(search.trim(), 'i') },
+            { adress: new RegExp(search.trim(), 'i') },
+          ];
+        } else {
+          searchQuiry = [
+            { age: new RegExp(search.trim(), 'i') },
+            { desc: new RegExp(search.trim(), 'i') },
+            { production: new RegExp(search.trim(), 'i') },
+            { sex: new RegExp(search.trim(), 'i') },
+            { city: new RegExp(search.trim(), 'i') },
+            { adress: new RegExp(search.trim(), 'i') },
+            { catigory: catigory._id },
+          ];
+        }
       }else{
-        searchQuiry=[
-          { age: new RegExp( search.trim() , 'i') },
-          { desc: new RegExp( search.trim() , 'i') },
-          { production: new RegExp(search.trim(), 'i') },
-          { sex: new RegExp( search.trim() , 'i') },
-          { city: new RegExp( search.trim(), 'i') },
-          { adress: new RegExp(search.trim(), 'i') },
-          { catigory: catigory._id},
+        searchQuiry = [
+          {_id:searchId}
         ];
       }
+
     }
     if (type == "product") {
-      
-        totalItems = await Products.find({
-          $or: searchQuiry,
-          approve:approve
-        }).countDocuments();
-        result = await Products.find({
-          $or: searchQuiry,
-          approve:approve
-        }).sort({ createdAt: -1 })
+
+      totalItems = await Products.find({
+        $or: searchQuiry,
+        approve: approve
+      }).countDocuments();
+      result = await Products.find({
+        $or: searchQuiry,
+        approve: approve
+      }).sort({ createdAt: -1 })
         .select(
-            "createdAt catigory age sex user imageUrl bidStatus approve pay"
-          )
-          .populate({ path: "user", select: "name email mobile" })
-          .populate({ path: "catigory", select: "name" })
-          .skip((page - 1) * itemPerPage)
-          .limit(itemPerPage);
-      
-      
+          "createdAt catigory age sex user imageUrl bidStatus approve pay"
+        )
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .skip((page - 1) * itemPerPage)
+        .limit(itemPerPage);
+
+
 
     } else if (type == "order") {
-      
+
       totalItems = await AskProduct.find({
         $or: searchQuiry,
-        approve:approve
+        approve: approve
       }).countDocuments();
       result = await AskProduct.find({
         $or: searchQuiry,
-        approve:approve
+        approve: approve
       }).sort({ createdAt: -1 })
-      .populate({ path: "user", select: "name email mobile" })
-      .populate({ path: "catigory", select: "name" })
-      .select("createdAt user desc city catigory pay note")
-      .skip((page - 1) * itemPerPage)
-      .limit(itemPerPage);
-    }else if (type == "user") {
+        .populate({ path: "user", select: "name email mobile" })
+        .populate({ path: "catigory", select: "name" })
+        .select("createdAt user desc city catigory pay note")
+        .skip((page - 1) * itemPerPage)
+        .limit(itemPerPage);
+    } else if (type == "user") {
       totalItems = await User.find({
         $or: [
-          { name:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
-          { email:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
-          { mobile:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { name: new RegExp('\\b' + search.trim() + '\\b', 'i') },
+          { email: new RegExp('\\b' + search.trim() + '\\b', 'i') },
+          { mobile: new RegExp('\\b' + search.trim() + '\\b', 'i') },
         ],
       }).countDocuments();
       result = await User.find({
         $or: [
-          { name: new RegExp('\\b' + search.trim() + '\\b' , 'i') },
-          { email:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
-          { mobile:  new RegExp('\\b' + search.trim() + '\\b' , 'i') },
+          { name: new RegExp('\\b' + search.trim() + '\\b', 'i') },
+          { email: new RegExp('\\b' + search.trim() + '\\b', 'i') },
+          { mobile: new RegExp('\\b' + search.trim() + '\\b', 'i') },
         ],
       }).select("name email mobile realMobileNumber verification")
-      .skip((page - 1) * itemPerPage)
-      .limit(itemPerPage);
+        .skip((page - 1) * itemPerPage)
+        .limit(itemPerPage);
     }
     res.status(200).json({
       state: 1,
-      totalItems:totalItems,
+      totalItems: totalItems,
       searchResulr: result,
     });
   } catch (err) {
@@ -1751,8 +1754,8 @@ exports.getSearch = async (req, res, next) => {
 };
 
 exports.postTotalBid = async (req, res, next) => {
-  const id     = req.body.id;
-  const value  = req.body.value;
+  const id = req.body.id;
+  const value = req.body.value;
   const errors = validationResult(req);
 
   try {
@@ -1768,7 +1771,7 @@ exports.postTotalBid = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (product.pay==true||product.bidStatus!='binding') {
+    if (product.pay == true || product.bidStatus != 'binding') {
       const error = new Error("you can't change the value of product after bid or after pay");
       error.statusCode = 422;
       throw error;
@@ -1778,10 +1781,10 @@ exports.postTotalBid = async (req, res, next) => {
     await product.save();
 
     res.status(200).json({
-      state:1,
-      message:'edited!!'
+      state: 1,
+      message: 'edited!!'
     });
-   
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1791,9 +1794,9 @@ exports.postTotalBid = async (req, res, next) => {
 };
 
 exports.postSingleUserNotfication = async (req, res, next) => {
-  const id     = req.body.id;
-  const title  = req.body.title;
-  const body  = req.body.body;
+  const id = req.body.id;
+  const title = req.body.title;
+  const body = req.body.body;
   const errors = validationResult(req);
 
   try {
@@ -1822,10 +1825,10 @@ exports.postSingleUserNotfication = async (req, res, next) => {
     await sendNotfication.send(user.FCMJwt, Nbody, Nnotfi, [
       user._id
     ]);
-    
+
     res.status(200).json({
-      state:1,
-      message:'notfication sent!!'
+      state: 1,
+      message: 'notfication sent!!'
     });
 
   } catch (err) {
@@ -1838,7 +1841,7 @@ exports.postSingleUserNotfication = async (req, res, next) => {
 
 
 exports.deleteLastBid = async (req, res, next) => {
-  const id     = req.body.productId;
+  const id = req.body.productId;
   const errors = validationResult(req);
 
   try {
@@ -1849,35 +1852,35 @@ exports.deleteLastBid = async (req, res, next) => {
       throw error;
     }
     const product = await Products.findById(id);
-    if(!product){
+    if (!product) {
       const error = new Error("product not found!!");
       error.statusCode = 404;
       throw error;
     }
-    if(product.bidStatus!='started'){
+    if (product.bidStatus != 'started') {
       const error = new Error("you can not delete after bid!!");
       error.statusCode = 422;
       throw error;
     }
-    if(product.bidArray.length==0){
+    if (product.bidArray.length == 0) {
       const error = new Error("no bids to delete");
       error.statusCode = 422;
       throw error;
     }
-    const lastArrayPid = product.bidArray[product.bidArray.length-1];
-    if(product.bidArray.length>1){
-      const updateLast = product.bidArray[product.bidArray.length-2].user;
-      product.lastPid  = mongoose.Types.ObjectId(updateLast);
-    }else{
-      product.lastPid  = null;
+    const lastArrayPid = product.bidArray[product.bidArray.length - 1];
+    if (product.bidArray.length > 1) {
+      const updateLast = product.bidArray[product.bidArray.length - 2].user;
+      product.lastPid = mongoose.Types.ObjectId(updateLast);
+    } else {
+      product.lastPid = null;
     }
-    product.TotalPid   = product.bidArray[product.bidArray.length-1].from;
-    await Products.updateOne({_id:id}, { $pull: {bidArray: lastArrayPid } } );
+    product.TotalPid = product.bidArray[product.bidArray.length - 1].from;
+    await Products.updateOne({ _id: id }, { $pull: { bidArray: lastArrayPid } });
     await product.save();
-    
+
     res.status(200).json({
-      state:1,
-      message:'deleted'
+      state: 1,
+      message: 'deleted'
     });
 
   } catch (err) {
@@ -1891,10 +1894,10 @@ exports.deleteLastBid = async (req, res, next) => {
 //Prize
 
 exports.prizePost = async (req, res, next) => {
-  const userName     = req.body.userName;
-  const prizeName     = req.body.prizeName;
-  const price     = req.body.price;
-  const image     = req.files;
+  const userName = req.body.userName;
+  const prizeName = req.body.prizeName;
+  const price = req.body.price;
+  const image = req.files;
   const errors = validationResult(req);
 
   try {
@@ -1904,7 +1907,7 @@ exports.prizePost = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    
+
     if (image.length == 0) {
       const error = new Error("validation faild for image");
       error.statusCode = 422;
@@ -1912,19 +1915,19 @@ exports.prizePost = async (req, res, next) => {
     }
 
     const newPrize = new Prize({
-      imageUrl:image[0].path,
-      userName:userName,
-      prizeName:prizeName,
-      price:Number(price),
+      imageUrl: image[0].path,
+      userName: userName,
+      prizeName: prizeName,
+      price: Number(price),
     });
 
     await newPrize.save();
 
     res.status(201).json({
-      state:1,
-      prize:newPrize
+      state: 1,
+      prize: newPrize
     });
-   
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1934,26 +1937,26 @@ exports.prizePost = async (req, res, next) => {
 };
 
 exports.getPrize = async (req, res, next) => {
-  const page        = req.query.page;
-  const itemPerPage = 10; 
+  const page = req.query.page;
+  const itemPerPage = 10;
 
   try {
-    
+
     const TotalPrizes = await Prize.find({})
-    .countDocuments();
+      .countDocuments();
     const prizes = await Prize.find({})
-    .sort({createdAt:-1})
-    .skip((page - 1) * itemPerPage)
-    .limit(itemPerPage);
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * itemPerPage)
+      .limit(itemPerPage);
 
     res.status(200).json({
-      state:1,
-      TotalPrizes:TotalPrizes,
-      prizes:prizes,
+      state: 1,
+      TotalPrizes: TotalPrizes,
+      prizes: prizes,
     });
-    
-     
-   
+
+
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -1964,11 +1967,11 @@ exports.getPrize = async (req, res, next) => {
 
 
 exports.postEditPrize = async (req, res, next) => {
-  const userName     = req.body.userName;
-  const prizeName     = req.body.prizeName;
-  const price     = req.body.price;
-  const id     = req.body.id;
-  const image     = req.files;
+  const userName = req.body.userName;
+  const prizeName = req.body.prizeName;
+  const price = req.body.price;
+  const id = req.body.id;
+  const image = req.files;
   const errors = validationResult(req);
 
   try {
@@ -1978,10 +1981,10 @@ exports.postEditPrize = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    
+
     const prize = await Prize.findById(id);
 
-    if(!prize){
+    if (!prize) {
       const error = new Error("prize not found");
       error.statusCode = 404;
       throw error;
@@ -1989,24 +1992,24 @@ exports.postEditPrize = async (req, res, next) => {
     prize.userName = userName;
     prize.prizeName = prizeName;
     prize.price = Number(price);
-    
-    if(image.length>0){
+
+    if (image.length > 0) {
       prize.imageUrl = image[0].path;
     }
 
     await prize.save();
 
     res.status(200).json({
-      state:1,
-      message:'edited!!'
+      state: 1,
+      message: 'edited!!'
     });
 
     res.status(201).json({
-      state:1,
-      prize:newPrize
+      state: 1,
+      prize: newPrize
     });
-   
-  }catch (err) {
+
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -2015,7 +2018,7 @@ exports.postEditPrize = async (req, res, next) => {
 };
 
 exports.deletePrize = async (req, res, next) => {
-  const id     = req.body.id;
+  const id = req.body.id;
   const errors = validationResult(req);
 
   try {
@@ -2025,13 +2028,13 @@ exports.deletePrize = async (req, res, next) => {
       error.data = errors.array();
       throw error;
     }
-    if(!Array.isArray(id)){
+    if (!Array.isArray(id)) {
       const error = new Error("validation faild..id must be array");
       error.statusCode = 422;
       throw error;
     }
     const prizes = await Prize.find({ _id: { $in: id } });
-    
+
     prizes.forEach((i) => {
       deleteFile.deleteFile(path.join(__dirname + "/../../" + i.imageUrl));
     });
@@ -2039,12 +2042,12 @@ exports.deletePrize = async (req, res, next) => {
     await Prize.deleteMany({ _id: { $in: id } });
 
     res.status(200).json({
-      state:1,
-      message:'deleted!!'
+      state: 1,
+      message: 'deleted!!'
     });
-    
-   
-  }catch (err) {
+
+
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }

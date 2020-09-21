@@ -271,38 +271,47 @@ exports.getMyProducts = async (req, res, next) => {
 
     const page = req.query.page || 1;
     const productPerPage = 10;
-    let userAfterPaginate = [];
-    let count = 0;
     try {
-        const user = await User.findById(req.userId).select('postedProducts').populate('postedProducts');
-        let totalBids = user.postedProducts.length;
-        if (!user) {
-            const error = new Error('user not found');
-            error.statusCode = 404;
-            throw error;
-        }
-        let start = (page - 1) * productPerPage;
-        let c = 0;
-        for (count = start; count < user.postedProducts.length; count++) {
-            if (c < productPerPage) {
-                if (user.postedProducts[count] != null) {
-                    userAfterPaginate.push({
-                        approve: user.postedProducts[count].approve,
-                        imageUrl: user.postedProducts[count].imageUrl,
-                        desc: user.postedProducts[count].desc,
-                        _id: user.postedProducts[count]._id,
-                        TotalPid: user.postedProducts[count].TotalPid,
-                        price: user.postedProducts[count].price
-                    });
-                } else {
-                    totalBids--;
-                }
-                c++;
-            } else {
-                break;
-            }
-        }
-        res.status(200).json({ state: 1, myProducts: userAfterPaginate, totalProducts: totalBids });
+        // const user = await User.findById(req.userId).select('postedProducts').populate('postedProducts');
+        // let totalBids = user.postedProducts.length;
+        // if (!user) {
+        //     const error = new Error('user not found');
+        //     error.statusCode = 404;
+        //     throw error;
+        // }
+        // let start = (page - 1) * productPerPage;
+        // let c = 0;
+        // for (count = start; count < user.postedProducts.length; count++) {
+        //     if (c < productPerPage) {
+        //         if (user.postedProducts[count] != null) {
+        //             userAfterPaginate.push({
+        //                 approve: user.postedProducts[count].approve,
+        //                 imageUrl: user.postedProducts[count].imageUrl,
+        //                 desc: user.postedProducts[count].desc,
+        //                 _id: user.postedProducts[count]._id,
+        //                 TotalPid: user.postedProducts[count].TotalPid,
+        //                 price: user.postedProducts[count].price
+        //             });
+        //         } else {
+        //             totalBids--;
+        //         }
+        //         c++;
+        //     } else {
+        //         break;
+        //     }
+        // }
+        const myProducts = await Product.find({user:req.userId,pay:false})
+        .select('approve imageUrl desc TotalPid price')
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage)
+        .sort({ createdAt: -1 }) ;
+
+        const totalBids = await Product.find({user:req.userId,pay:false})
+        .countDocuments();
+
+        res.status(200).json({ state: 1, myProducts: myProducts, totalProducts: totalBids });
+
+
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -386,29 +395,6 @@ exports.getNotification = async (req, res, next) => {
     const itemBerPage = 10;
     const notf = [];
     try {
-        // const user = await User.findById(req.userId);
-        // if (!user) {
-        //     const error = new Error('user not found');
-        //     error.statusCode = 404;
-        //     throw error;
-        // }
-        // const totalNotfi = user.notfications.length;
-        // let start = totalNotfi - (page - 1) * itemBerPage;
-
-
-
-        // let c = 0;
-        // let count = 0;
-        // for (count = start - 1; count >= 0; count--) {
-        //     if (c < itemBerPage) {
-        //         userNotfi.push({
-        //             notfication: user.notfications[count],
-        //         });
-        //         c++;
-        //     } else {
-        //         break;
-        //     }
-        // }
 
         const totalNotfi = await Notfications.find({ user: req.userId }).countDocuments();
         const userNotfi = await Notfications.find({ user: req.userId })

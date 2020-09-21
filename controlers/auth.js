@@ -17,7 +17,7 @@ const transport  = nodemailer.createTransport({
       pass:process.env.NODEMAILER_PASS
     }
   });
-
+ 
 exports.putSignup = (req,res,next)=>{
     const errors = validationResult(req);
     if(!errors.isEmpty()){
