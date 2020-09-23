@@ -305,6 +305,7 @@ exports.postSupport = async (req, res, next) => {
 exports.postCatigory = async (req, res, next) => {
   const name = req.body.name;
   const image = req.files;
+  const form = req.body.form;
   const errors = validationResult(req);
 
   try {
@@ -329,10 +330,16 @@ exports.postCatigory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
+    if(form!='1' && form!='2' &&form!='3'){
+      const error = new Error("validation faild.. not allawed value for form");
+      error.statusCode = 422;
+      throw error;
+    }
 
     const cat = new Catigory({
       imageUrl: image[0].path,
       name: name,
+      form:form,
       products: [],
     });
     const newCat = await cat.save();
@@ -2044,6 +2051,30 @@ exports.deletePrize = async (req, res, next) => {
     res.status(200).json({
       state: 1,
       message: 'deleted!!'
+    });
+
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+//init update
+exports.init = async (req, res, next) => {
+
+  try {
+    
+    await Catigory.updateMany({},{form:'1'});
+
+    //pids
+    //await User.updateMany({},{})
+
+    res.status(200).json({
+      state:1,
+      message:'initiated'
     });
 
 

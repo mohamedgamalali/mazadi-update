@@ -79,6 +79,20 @@ const productSchema = new schema({
         type:Number,
         required:true
     },
+    owner:String,                                                                        //update
+    color2:String,
+    accident:{
+        type:Number,
+        enum:[0,1,2,3]
+    },
+    colored:{
+        type:Number,
+        enum:[0,1,2]
+    },
+    engineNumber:{
+        type:String
+    },
+    Guarantee:Boolean,
     pay:{
         type:Boolean,
         default:false

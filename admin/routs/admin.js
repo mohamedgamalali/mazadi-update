@@ -54,6 +54,8 @@ router.post('/support',isAuth,[
 
 router.post('/support/catigory',isAuth,[                                   //REST API
   body('name')
+  .not().isEmpty(),
+  body('form')
   .not().isEmpty()
 ],adminController.postCatigory);
 
@@ -181,6 +183,9 @@ router.delete('/prize/delete',[
 // router.post('/notfication/clear',isAuth,adminController.postClearNotfication);
 
 router.post('/notfication/manage',isAuth,adminController.postManageNotfication);
+
+//init production
+router.post('/update/init',isAuth,adminController.init);
 
 module.exports = router;
 

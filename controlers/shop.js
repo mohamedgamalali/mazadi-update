@@ -29,9 +29,20 @@ exports.putProducts = async (req, res, next) => {
     const userId = req.userId;
     const adress = req.body.adress;
     const city = req.body.city;
+    //update for form 3
+    const owner = req.body.owner;
+    const color2 = req.body.color2;
+    const accident = req.body.accident;
+    const colored = req.body.colored;
+    const engineNumber = req.body.engineNumber;
+    const Guarantee = req.body.Guarantee;
+    
     const price = Number(req.body.price);
-    let image = [];
-    let vid;
+    const bidStart = Number(req.body.bidStart);
+
+    let   image = [];
+    let   vid;
+    let newProduct = {} ;
     if (!errors.isEmpty()) {
       const error = new Error("validation faild");
       error.statusCode = 422;
@@ -61,29 +72,74 @@ exports.putProducts = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const newProduct = new Product({
-      imageUrl: image,
-      vidUrl: vid,
-      helth: helth,
-      amount: amount,
-      color: color,
-      age: age,
-      desc: desc,
-      catigory: catigory,
-      user: userId,
-      production: production,
-      size: size,
-      sex: sex,
-      adress: adress,
-      city: city,
-      price: price,
-    });
+    
 
     const cat = await Catigory.findById(catigory);
     if (!cat) {
       const error = new Error("catigory can not be found");
       error.statusCode = 404;
       throw error;
+    }
+    if(cat.form == '1'){
+      newProduct = new Product({
+        imageUrl: image,
+        vidUrl: vid,
+        helth: helth,
+        amount: amount,
+        color: color,
+        age: age,
+        desc: desc,
+        catigory: catigory,
+        user: userId,
+        production: production,
+        size: size,
+        sex: sex,
+        adress: adress,
+        city: city,
+        price: price,
+        TotalPid:bidStart,
+      });
+    }else if(cat.form == '2'){
+      newProduct = new Product({
+        imageUrl: image,
+        vidUrl: vid,
+        helth: helth,
+        amount: amount,
+        color: color,
+        age: age,
+        desc: desc,
+        catigory: catigory,
+        user: userId,
+        production: production,
+        size: size,
+        sex: sex,
+        adress: adress,
+        city: city,
+        price: price,
+        TotalPid:bidStart,
+      });
+    }else if(cat.form == '3'){
+      newProduct = new Product({
+        imageUrl: image,
+        vidUrl: vid,
+        owner:owner,
+        color2:color2,
+        accident:Number(accident),
+        colored:Number(colored) ,
+        engineNumber:engineNumber ,
+        sex:sex,
+        helth:helth,
+        age:age,
+        color:color,
+        Guarantee:Boolean(Guarantee),
+        price: price,
+        TotalPid:bidStart,
+        city: city,
+        adress: adress,
+        desc: desc,
+        user: userId,
+        catigory: catigory,
+      });
     }
 
     const savedProduct = await newProduct.save();

@@ -14,7 +14,12 @@ const catigorySchema = new schema({
     products:[{
         type:schema.Types.ObjectId,
         ref:'product'
-    }]
+    }],
+    form:{
+        type:String,
+        default:'1',
+        enum:['1','2','3']
+    }
 });
 
 module.exports = mongoose.model('catigory',catigorySchema);
