@@ -97,6 +97,7 @@ const productSchema = new schema({
         type:Boolean,
         default:false
     },
+    productState:String,
     adminNote:String
   },
     {timestamps:true}

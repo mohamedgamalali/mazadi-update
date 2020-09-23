@@ -36,6 +36,7 @@ exports.putProducts = async (req, res, next) => {
     const colored = req.body.colored;
     const engineNumber = req.body.engineNumber;
     const Guarantee = req.body.Guarantee;
+    const productState = req.body.productState;
     
     const price = Number(req.body.price);
     const bidStart = Number(req.body.bidStart);
@@ -131,7 +132,7 @@ exports.putProducts = async (req, res, next) => {
         helth:helth,
         age:age,
         color:color,
-        Guarantee:Boolean(Guarantee),
+        Guarantee:Boolean(Number(Guarantee)),
         price: price,
         TotalPid:bidStart,
         city: city,
@@ -139,6 +140,8 @@ exports.putProducts = async (req, res, next) => {
         desc: desc,
         user: userId,
         catigory: catigory,
+        size: size,
+        productState:productState
       });
     }
 
