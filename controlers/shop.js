@@ -947,6 +947,11 @@ exports.putAskProductBid = async (req, res, next) => {
       production: production,
     };
     const prod = await AskProduct.findById(askProductId).populate("user");
+    if(!prod){
+      const error = new Error("order not found");
+      error.statusCode = 404;
+      throw error;
+    }
     if (prod.approve === "binding") {
       const error = new Error("admin did not approved to the bid yet");
       error.statusCode = 401;
@@ -961,19 +966,7 @@ exports.putAskProductBid = async (req, res, next) => {
     prod.Bids.unshift(Bid);
     const finalProd = await prod.save();
     const user = await User.findById(userId);
-    const body = {
-      id: finalProd._id.toString(),
-      key: "3",
-      data: "قام احد باضافه عرض علي طلبك",
-    };
-    const notfi = {
-      title: `قام احد بأضافة عرض على طلبك`,
-      body: "يمكنك تصفح العروض",
-    };
-
-    const n = await sendNotfication.send(finalProd.user.FCMJwt, body, notfi, [
-      finalProd.user._id,
-    ]);
+    
     io.getIO().emit("askProducts", {
       action: "creat",
       productAfterBid: { ...finalProd._doc },

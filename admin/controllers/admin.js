@@ -330,7 +330,7 @@ exports.postCatigory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    if(form!='1' && form!='2' &&form!='3'){
+    if (form != '1' && form != '2' && form != '3') {
       const error = new Error("validation faild.. not allawed value for form");
       error.statusCode = 422;
       throw error;
@@ -339,7 +339,7 @@ exports.postCatigory = async (req, res, next) => {
     const cat = new Catigory({
       imageUrl: image[0].path,
       name: name,
-      form:form,
+      form: form,
       products: [],
     });
     const newCat = await cat.save();
@@ -1687,9 +1687,9 @@ exports.getSearch = async (req, res, next) => {
             { catigory: catigory._id },
           ];
         }
-      }else{
+      } else {
         searchQuiry = [
-          {_id:searchId}
+          { _id: searchId }
         ];
       }
 
@@ -2066,15 +2066,15 @@ exports.deletePrize = async (req, res, next) => {
 exports.init = async (req, res, next) => {
 
   try {
-    
-    await Catigory.updateMany({},{form:'1'});
+
+    await Catigory.updateMany({}, { form: '1' });
 
     //pids
     //await User.updateMany({},{})
 
     res.status(200).json({
-      state:1,
-      message:'initiated'
+      state: 1,
+      message: 'initiated'
     });
 
 
@@ -2090,21 +2090,21 @@ exports.init = async (req, res, next) => {
 //accept offers
 
 exports.getOffers = async (req, res, next) => {
-  
-  const page = req.query.page || 1 ;
-  const offerPerpage = 10 ;
+
+  const page = req.query.page || 1;
+  const offerPerpage = 10;
   let offers = [];
 
   try {
-    const askProduct = await AskProduct.find({approve:'approved',Bids:{$elemMatch:{offerApprove:'binding'}}})
-    .sort({ createdAt: -1 })
-    .select('Bids');
+    const askProduct = await AskProduct.find({ approve: 'approved', Bids: { $elemMatch: { offerApprove: 'binding' } } })
+      .sort({ createdAt: -1 })
+      .select('Bids');
 
-    askProduct.forEach(i=>{
-      offers = i.Bids.filter(element=>{
-        if(element.offerApprove==='binding'){
+    askProduct.forEach(i => {
+      offers = i.Bids.filter(element => {
+        if (element.offerApprove === 'binding') {
           return {
-            order_id:i._id,
+            order_id: i._id,
             element
           }
         }
@@ -2112,10 +2112,160 @@ exports.getOffers = async (req, res, next) => {
     });
 
     res.status(200).json({
-      state:1,
-      offers:offers.slice((page - 1) * offerPerpage, ((page - 1) * offerPerpage) + offerPerpage ),
-      total:offers.length,
-      message:`offers in page ${page}`
+      state: 1,
+      offers: offers.slice((page - 1) * offerPerpage, ((page - 1) * offerPerpage) + offerPerpage),
+      total: offers.length,
+      message: `offers in page ${page}`
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getSingleOffer = async (req, res, next) => {
+
+  const orderId = req.params.orderId;
+  const offerId = req.params.offerId;
+
+
+  try {
+
+    const order = await AskProduct.findById(orderId)
+      .select('Bids desc helth user amount color adress age production size sex city catigory')
+      .populate({ path: 'user', select: 'name' })
+      .populate({ path: 'catigory', select: 'form name' })
+      .populate({ path: 'Bids.user', select: 'name' });
+
+    if (!order) {
+      const error = new Error("order not found!!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    let offerIndex = order.Bids.map(e => {
+      return e._id;
+    }).indexOf(offerId);
+
+    if (offerIndex == -1) {
+      const error = new Error("offer not found!!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const offer = order.Bids[offerIndex];
+    order.Bids = [];
+
+
+    res.status(200).json({
+      state: 1,
+      order: order,
+      offer: offer,
+      message: `offer details`
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+//approve 
+
+
+exports.postOfferApprove = async (req, res, next) => {
+
+  const orderId = req.body.orderId;
+  const offerId = req.body.offerId;
+  const action = req.params.action;
+  const adminNotes = req.body.adminNotes  ;
+
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+    const order = await AskProduct.findById(orderId)
+      .select('Bids user')
+      .populate({ path: 'user', select: 'FCMJwt' })
+      .populate({ path: 'Bids.user', select: 'FCMJwt' });
+
+    if (!order) {
+      const error = new Error("order not found!!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    let offerIndex = order.Bids.map(e => {
+      return e._id;
+    }).indexOf(offerId);
+
+    if (offerIndex == -1) {
+      const error = new Error("offer not found!!");
+      error.statusCode = 404;
+      throw error;
+    }
+    if (action == '1') {
+      order.Bids[offerIndex].offerApprove = 'approved';
+      const finalProd = await order.save();
+      const body = {
+        id: finalProd._id.toString(),
+        key: "3",
+        data: "قام احد باضافه عرض علي طلبك",
+      };
+      const notfi = {
+        title: `قام احد بأضافة عرض على طلبك`,
+        body: "يمكنك تصفح العروض",
+      };
+
+      const n = await sendNotfication.send(finalProd.user.FCMJwt, body, notfi, [
+        finalProd.user._id,
+      ]);
+
+    } else if (action == '2') {
+
+      if (!adminNotes) {
+        const error = new Error("validation faild for adminNotes");
+        error.statusCode = 422;
+        throw error;
+      }
+      
+
+      const Sbody = {
+        id: order._id.toString() + " " + offerId.toString(),
+        key: "20",
+        data: order.Bids[offerIndex].price.toString(),
+      };
+      const Snotfi = {
+        title: `للأسف تم رفض عرضك`,
+        body: adminNotes.toString(),
+      };
+      const n = await sendNotfication.send(order.Bids[offerIndex].user.FCMJwt, Sbody, Snotfi, [
+        order.Bids[offerIndex].user._id,
+      ]);
+
+      order.Bids[offerIndex].offerApprove   = 'disapprove';
+      order.Bids[offerIndex].offerAdminNote = adminNotes ;
+      await order.save();
+
+    } else {
+      const error = new Error("validation faild.. un handle prameter");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    res.status(200).json({
+      state: 1,
+      message: `done in action ${action}`
     });
 
   } catch (err) {

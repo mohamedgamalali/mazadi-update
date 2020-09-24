@@ -189,6 +189,14 @@ router.post('/update/init',isAuth,adminController.init);
 
 //accept offers
 router.get('/offers',isAuth,adminController.getOffers);
+router.get('/singleOffer/:orderId/:offerId',isAuth,adminController.getSingleOffer);
+
+router.post('/offer/approve/:action',[
+  body('orderId') 
+  .not().isEmpty(),
+  body('offerId') 
+  .not().isEmpty(),
+],isAuth,adminController.postOfferApprove);
 
 
 module.exports = router;

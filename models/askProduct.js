@@ -54,7 +54,8 @@ const askProductSchema = new schema({
             type:String,
             default:'binding',
             enum:['binding','approved','disapprove']
-        }
+        },
+        offerAdminNote:String
     }],
     catigory:{
         type:schema.Types.ObjectId,
