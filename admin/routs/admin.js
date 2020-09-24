@@ -187,6 +187,10 @@ router.post('/notfication/manage',isAuth,adminController.postManageNotfication);
 //init production
 router.post('/update/init',isAuth,adminController.init);
 
+//accept offers
+router.get('/offers',isAuth,adminController.getOffers);
+
+
 module.exports = router;
 
 //mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority 

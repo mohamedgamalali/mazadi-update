@@ -49,6 +49,11 @@ const askProductSchema = new schema({
         selected:{
             type:Boolean,
             default:false
+        },
+        offerApprove:{
+            type:String,
+            default:'binding',
+            enum:['binding','approved','disapprove']
         }
     }],
     catigory:{

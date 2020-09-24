@@ -2085,3 +2085,43 @@ exports.init = async (req, res, next) => {
     next(err);
   }
 };
+
+
+//accept offers
+
+exports.getOffers = async (req, res, next) => {
+  
+  const page = req.query.page || 1 ;
+  const offerPerpage = 10 ;
+  let offers = [];
+
+  try {
+    const askProduct = await AskProduct.find({approve:'approved',Bids:{$elemMatch:{offerApprove:'binding'}}})
+    .sort({ createdAt: -1 })
+    .select('Bids');
+
+    askProduct.forEach(i=>{
+      offers = i.Bids.filter(element=>{
+        if(element.offerApprove==='binding'){
+          return {
+            order_id:i._id,
+            element
+          }
+        }
+      });
+    });
+
+    res.status(200).json({
+      state:1,
+      offers:offers.slice((page - 1) * offerPerpage, ((page - 1) * offerPerpage) + offerPerpage ),
+      total:offers.length,
+      message:`offers in page ${page}`
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
