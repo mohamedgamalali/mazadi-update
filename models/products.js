@@ -91,6 +91,7 @@ const productSchema = new schema({
         type:String
     },
     Guarantee:Boolean,
+    type:String,
     pay:{
         type:Boolean,
         default:false

@@ -37,6 +37,7 @@ exports.putProducts = async (req, res, next) => {
     const engineNumber = req.body.engineNumber;
     const Guarantee = req.body.Guarantee;
     const productState = req.body.productState;
+    const type = req.body.type;
 
     const price = Number(req.body.price);
     const bidStart = Number(req.body.bidStart) || 0;
@@ -99,6 +100,7 @@ exports.putProducts = async (req, res, next) => {
         city: city,
         price: price,
         TotalPid: bidStart,
+        type:type
       });
     } else if (cat.form == '2') {
       newProduct = new Product({
