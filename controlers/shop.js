@@ -318,6 +318,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "date") {
@@ -335,6 +336,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "bids") {
@@ -352,6 +354,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "sold") {
@@ -365,6 +368,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("TotalPid")
         .select("createdAt")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else {
@@ -381,6 +385,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     }
@@ -496,8 +501,7 @@ exports.getSingleAskProduct = async (req, res, next) => {
   let owner = false;
   try {
     const askProduct = await AskProduct.findById(prodId)
-      .populate("user")
-      .populate("catigory");
+      .populate({path:"catigory",select:'name form'});
 
     if (!askProduct) {
       const error = new Error("product not found!!..");
@@ -517,29 +521,10 @@ exports.getSingleAskProduct = async (req, res, next) => {
 
     res.status(200).json({
       state: 1,
-      product: {
-        TotalPid: askProduct.Bids.length,
-        _id: askProduct._id,
-        helth: askProduct.helth,
-        amount: askProduct.amount,
-        color: askProduct.color,
-        age: askProduct.age,
-        desc: askProduct.desc,
-        catigory: askProduct.catigory.name,
-        production: askProduct.production,
-        size: askProduct.size,
-        sex: askProduct.sex,
-        creatorId: askProduct.user._id,
-        createdAt: askProduct.createdAt,
-        approve: askProduct.approve,
-        ended: askProduct.ended,
-        bids: bids,
-        owner: owner,
-        pay: askProduct.pay,
-        adress: askProduct.adress,
-        city: askProduct.city,
-      },
+      product: askProduct,
+      owner:owner
     });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
