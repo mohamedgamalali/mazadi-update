@@ -108,18 +108,18 @@ exports.putProducts = async (req, res, next) => {
         vidUrl: vid,
         helth: helth,
         amount: amount,
-        color: color,
         age: age,
         desc: desc,
         catigory: catigory,
         user: userId,
-        production: production,
         size: size,
         sex: sex,
         adress: adress,
         city: city,
         price: price,
         TotalPid: bidStart,
+        productState: productState,
+        Guarantee: Boolean(Number(Guarantee))
       });
     } else if (cat.form == '3') {
       newProduct = new Product({
@@ -465,11 +465,11 @@ exports.getSingleProduct = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    // if (product.approve === "binding" && req.userId != product.user._id) {
-    //   const error = new Error("product not approved by the admin");
-    //   error.statusCode = 401;
-    //   throw error;
-    // }
+    if (product.approve === "binding" && req.userId != product.user._id) {
+      const error = new Error("product not approved by the admin");
+      error.statusCode = 401;
+      throw error;
+    }
 
     for (var i = 0; i < user.fevProducts.length; i++) {
       if (user.fevProducts[i] == prodId) {
