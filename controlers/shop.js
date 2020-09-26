@@ -451,7 +451,7 @@ exports.getSingleProduct = async (req, res, next) => {
     const product = await Product.findById(prodId)
       .populate({ path: "user", select: 'name' })
       .populate({ path: "catigory", select: 'name form' })
-      .select('-city -adress -price');
+      .select('-adress -price');
 
     const user = await User.findById(req.userId);
     if (!user) {
