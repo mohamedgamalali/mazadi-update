@@ -21,6 +21,12 @@ const askProductSchema = new schema({
     size:String,
     sex:String,
     city:String,
+    //update
+    productState:String,
+    color2:String,
+    engineSize:String,
+    Guarantee:Boolean,
+
     Bids:[{
         imageUrl:[{
             type:String,

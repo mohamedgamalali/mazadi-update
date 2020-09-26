@@ -752,24 +752,77 @@ exports.putAskProduct = async (req, res, next) => {
     const size = req.body.size;
     const production = req.body.production;
     const adress = req.body.adress;
+    //update
+    const productState = req.body.productState;
+    const color2 = req.body.color2;
+    const engineSize = req.body.engineSize;
+    const Guarantee = req.body.Guarantee;
 
-    const newAskProduct = new AskProduct({
-      user: req.userId,
-      products: [],
-      desc: desc,
-      age: age,
-      sex: sex,
-      adress: adress,
-      color: color,
-      amount: amount,
-      helth: helth,
-      size: size,
-      production: production,
-      catigory: catigory,
-      city: city,
-    });
-    const askProduct = await newAskProduct.save();
+    let askProduct ;
+
+    const cat = await Catigory.findById(catigory);
+    if(!cat){
+      const error = new Error("catigory can not be found");
+      error.statusCode = 404;
+      throw error;
+    }
+    if(cat.form == '1'){
+      const newAskProduct = new AskProduct({
+        user: req.userId,
+        products: [],
+        desc: desc,
+        age: age,
+        sex: sex,
+        adress: adress,
+        color: color,
+        amount: amount,
+        helth: helth,
+        size: size,
+        production: production,
+        catigory: cat._id,
+        city: city,
+      });
+      askProduct = await newAskProduct.save();
+    }else if(cat.form == '2'){
+      const newAskProduct = new AskProduct({
+        user: req.userId,
+        products: [],
+        desc: desc,
+        age: age,
+        sex: sex,
+        adress: adress,
+        amount: amount,
+        helth: helth,
+        size: size,
+        catigory: cat._id,
+        city: city,
+        productState:productState,
+        Guarantee: Boolean(Number(Guarantee))
+      });
+      askProduct = await newAskProduct.save();
+    }else if(cat.form == '3'){
+      const newAskProduct = new AskProduct({
+        user: req.userId,
+        products: [],
+        desc: desc,
+        age: age,
+        sex: sex,
+        adress: adress,
+        color: color,
+        helth: helth,
+        size: size,
+        catigory: cat._id,
+        city: city,
+        productState:productState,
+        color2:color2,
+        engineSize:engineSize,
+        Guarantee: Boolean(Number(Guarantee))
+      });
+      askProduct = await newAskProduct.save();
+    }
+    
     res.status(201).json({ state: 1, askProduct: askProduct });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
