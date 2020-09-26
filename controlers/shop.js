@@ -447,8 +447,10 @@ exports.getSingleProduct = async (req, res, next) => {
 
   try {
     const product = await Product.findById(prodId)
-      .populate("user")
-      .populate("catigory");
+      .populate({path:"user",select:'name'})
+      .populate({path:"catigory",select:'name form'})
+      .select('-city -adress -price');
+
     const user = await User.findById(req.userId);
     if (!user) {
       const error = new Error("user not found!!..");
@@ -461,11 +463,11 @@ exports.getSingleProduct = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (product.approve === "binding" && req.userId != product.user._id) {
-      const error = new Error("product not approved by the admin");
-      error.statusCode = 401;
-      throw error;
-    }
+    // if (product.approve === "binding" && req.userId != product.user._id) {
+    //   const error = new Error("product not approved by the admin");
+    //   error.statusCode = 401;
+    //   throw error;
+    // }
 
     for (var i = 0; i < user.fevProducts.length; i++) {
       if (user.fevProducts[i] == prodId) {
@@ -475,33 +477,33 @@ exports.getSingleProduct = async (req, res, next) => {
     }
     res.status(200).json({
       state: 1,
-      product: {
-        TotalPid: product.TotalPid,
-        vidUrl: product.vidUrl,
-        _id: product._id,
-        imageUrl: product.imageUrl,
-        helth: product.helth,
-        amount: product.amount,
-        color: product.color,
-        age: product.age,
-        desc: product.desc,
-        catigory: product.catigory.name,
-        Type: product.Type,
-        production: product.production,
-        size: product.size,
-        sex: product.sex,
-        creatorId: product.user._id,
-        createdAt: product.createdAt,
-        approve: product.approve,
-        lastBid: product.lastPid,
-        userId: user._id,
-        fev: fev,
-        pay: product.pay,
-        bidStatus: product.bidStatus,
-        price: product.price,
-        adress: product.adress,
-        city: product.city,
-      },
+        // TotalPid: product.TotalPid,
+        // vidUrl: product.vidUrl,
+        // _id: product._id,
+        // imageUrl: product.imageUrl,
+        // helth: product.helth,
+        // amount: product.amount,
+        // color: product.color,
+        // age: product.age,
+        // desc: product.desc,
+        // catigory: product.catigory.name,
+        // Type: product.Type,
+        // production: product.production,
+        // size: product.size,
+        // sex: product.sex,
+        // creatorId: product.user._id,
+        // createdAt: product.createdAt,
+        // approve: product.approve,
+        // lastBid: product.lastPid,
+        // userId: user._id,
+        // fev: fev,
+        // pay: product.pay,
+        // bidStatus: product.bidStatus,
+        // price: product.price,
+        // adress: product.adress,
+        // city: product.city,
+        product,
+        fev:fev
     });
   } catch (err) {
     if (!err.statusCode) {
