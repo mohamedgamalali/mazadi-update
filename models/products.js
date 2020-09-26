@@ -82,12 +82,10 @@ const productSchema = new schema({
     owner:String,                                                                        //update
     color2:String,
     accident:{
-        type:Number,
-        enum:[0,1,2,3]
+        type:String
     },
     colored:{
-        type:Number,
-        enum:[0,1,2]
+        type:String
     },
     engineNumber:{
         type:String
