@@ -37,13 +37,13 @@ exports.putProducts = async (req, res, next) => {
     const engineNumber = req.body.engineNumber;
     const Guarantee = req.body.Guarantee;
     const productState = req.body.productState;
-    
-    const price = Number(req.body.price);
-    const bidStart = Number(req.body.bidStart);
 
-    let   image = [];
-    let   vid;
-    let newProduct = {} ;
+    const price = Number(req.body.price);
+    const bidStart = Number(req.body.bidStart) || 0;
+
+    let image = [];
+    let vid;
+    let newProduct = {};
     if (!errors.isEmpty()) {
       const error = new Error("validation faild");
       error.statusCode = 422;
@@ -73,7 +73,7 @@ exports.putProducts = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    
+
 
     const cat = await Catigory.findById(catigory);
     if (!cat) {
@@ -81,7 +81,7 @@ exports.putProducts = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if(cat.form == '1'){
+    if (cat.form == '1') {
       newProduct = new Product({
         imageUrl: image,
         vidUrl: vid,
@@ -98,9 +98,9 @@ exports.putProducts = async (req, res, next) => {
         adress: adress,
         city: city,
         price: price,
-        TotalPid:bidStart,
+        TotalPid: bidStart,
       });
-    }else if(cat.form == '2'){
+    } else if (cat.form == '2') {
       newProduct = new Product({
         imageUrl: image,
         vidUrl: vid,
@@ -117,31 +117,31 @@ exports.putProducts = async (req, res, next) => {
         adress: adress,
         city: city,
         price: price,
-        TotalPid:bidStart,
+        TotalPid: bidStart,
       });
-    }else if(cat.form == '3'){
+    } else if (cat.form == '3') {
       newProduct = new Product({
         imageUrl: image,
         vidUrl: vid,
-        owner:owner,
-        color2:color2,
-        accident:accident,
-        colored:colored ,
-        engineNumber:engineNumber ,
-        sex:sex,
-        helth:helth,
-        age:age,
-        color:color,
-        Guarantee:Boolean(Number(Guarantee)),
+        owner: owner,
+        color2: color2,
+        accident: accident,
+        colored: colored,
+        engineNumber: engineNumber,
+        sex: sex,
+        helth: helth,
+        age: age,
+        color: color,
+        Guarantee: Boolean(Number(Guarantee)),
         price: price,
-        TotalPid:bidStart,
+        TotalPid: bidStart,
         city: city,
         adress: adress,
         desc: desc,
         user: userId,
         catigory: catigory,
         size: size,
-        productState:productState
+        productState: productState
       });
     }
 
@@ -447,8 +447,8 @@ exports.getSingleProduct = async (req, res, next) => {
 
   try {
     const product = await Product.findById(prodId)
-      .populate({path:"user",select:'name'})
-      .populate({path:"catigory",select:'name form'})
+      .populate({ path: "user", select: 'name' })
+      .populate({ path: "catigory", select: 'name form' })
       .select('-city -adress -price');
 
     const user = await User.findById(req.userId);
@@ -477,33 +477,33 @@ exports.getSingleProduct = async (req, res, next) => {
     }
     res.status(200).json({
       state: 1,
-        // TotalPid: product.TotalPid,
-        // vidUrl: product.vidUrl,
-        // _id: product._id,
-        // imageUrl: product.imageUrl,
-        // helth: product.helth,
-        // amount: product.amount,
-        // color: product.color,
-        // age: product.age,
-        // desc: product.desc,
-        // catigory: product.catigory.name,
-        // Type: product.Type,
-        // production: product.production,
-        // size: product.size,
-        // sex: product.sex,
-        // creatorId: product.user._id,
-        // createdAt: product.createdAt,
-        // approve: product.approve,
-        // lastBid: product.lastPid,
-        // userId: user._id,
-        // fev: fev,
-        // pay: product.pay,
-        // bidStatus: product.bidStatus,
-        // price: product.price,
-        // adress: product.adress,
-        // city: product.city,
-        product,
-        fev:fev
+      // TotalPid: product.TotalPid,
+      // vidUrl: product.vidUrl,
+      // _id: product._id,
+      // imageUrl: product.imageUrl,
+      // helth: product.helth,
+      // amount: product.amount,
+      // color: product.color,
+      // age: product.age,
+      // desc: product.desc,
+      // catigory: product.catigory.name,
+      // Type: product.Type,
+      // production: product.production,
+      // size: product.size,
+      // sex: product.sex,
+      // creatorId: product.user._id,
+      // createdAt: product.createdAt,
+      // approve: product.approve,
+      // lastBid: product.lastPid,
+      // userId: user._id,
+      // fev: fev,
+      // pay: product.pay,
+      // bidStatus: product.bidStatus,
+      // price: product.price,
+      // adress: product.adress,
+      // city: product.city,
+      product,
+      fev: fev
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -758,15 +758,15 @@ exports.putAskProduct = async (req, res, next) => {
     const engineSize = req.body.engineSize;
     const Guarantee = req.body.Guarantee;
 
-    let askProduct ;
+    let askProduct;
 
     const cat = await Catigory.findById(catigory);
-    if(!cat){
+    if (!cat) {
       const error = new Error("catigory can not be found");
       error.statusCode = 404;
       throw error;
     }
-    if(cat.form == '1'){
+    if (cat.form == '1') {
       const newAskProduct = new AskProduct({
         user: req.userId,
         products: [],
@@ -783,7 +783,7 @@ exports.putAskProduct = async (req, res, next) => {
         city: city,
       });
       askProduct = await newAskProduct.save();
-    }else if(cat.form == '2'){
+    } else if (cat.form == '2') {
       const newAskProduct = new AskProduct({
         user: req.userId,
         products: [],
@@ -796,11 +796,11 @@ exports.putAskProduct = async (req, res, next) => {
         size: size,
         catigory: cat._id,
         city: city,
-        productState:productState,
+        productState: productState,
         Guarantee: Boolean(Number(Guarantee))
       });
       askProduct = await newAskProduct.save();
-    }else if(cat.form == '3'){
+    } else if (cat.form == '3') {
       const newAskProduct = new AskProduct({
         user: req.userId,
         products: [],
@@ -810,17 +810,16 @@ exports.putAskProduct = async (req, res, next) => {
         adress: adress,
         color: color,
         helth: helth,
-        size: size,
         catigory: cat._id,
         city: city,
-        productState:productState,
-        color2:color2,
-        engineSize:engineSize,
+        productState: productState,
+        color2: color2,
+        engineSize: engineSize,
         Guarantee: Boolean(Number(Guarantee))
       });
       askProduct = await newAskProduct.save();
     }
-    
+
     res.status(201).json({ state: 1, askProduct: askProduct });
 
   } catch (err) {
@@ -1002,7 +1001,7 @@ exports.putAskProductBid = async (req, res, next) => {
       production: production,
     };
     const prod = await AskProduct.findById(askProductId).populate("user");
-    if(!prod){
+    if (!prod) {
       const error = new Error("order not found");
       error.statusCode = 404;
       throw error;
@@ -1021,7 +1020,7 @@ exports.putAskProductBid = async (req, res, next) => {
     prod.Bids.unshift(Bid);
     const finalProd = await prod.save();
     const user = await User.findById(userId);
-    
+
     io.getIO().emit("askProducts", {
       action: "creat",
       productAfterBid: { ...finalProd._doc },
@@ -1214,6 +1213,221 @@ exports.getPrize = async (req, res, next) => {
       TotalPrizes: TotalPrizes,
       prizes: prizes,
     });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+//edit product / ask
+
+exports.postEditProduct = async (req, res, next) => {
+  const productId = req.body.productId;
+
+
+  const imageUrl = req.files;
+  const helth = req.body.helth;
+  const amount = req.body.amount;
+  const color = req.body.color;
+  const age = req.body.age;
+  const desc = req.body.desc;
+  const production = req.body.production;
+  const size = req.body.size;
+  const sex = req.body.sex;
+  const userId = req.userId;
+  const adress = req.body.adress;
+  const city = req.body.city;
+  //update for form 3
+  const owner = req.body.owner;
+  const color2 = req.body.color2;
+  const accident = req.body.accident;
+  const colored = req.body.colored;
+  const engineNumber = req.body.engineNumber;
+  const Guarantee = req.body.Guarantee;
+  const productState = req.body.productState;
+
+  const price = Number(req.body.price);
+  const bidStart = Number(req.body.bidStart) || 0;
+
+  let image = [];
+  let vid;
+  let newProduct = {};
+
+
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    const product = await Product.findById(productId).populate({ path: 'catigory', select: 'form' });
+
+    if (!product) {
+      const error = new Error("product not found!!..");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (product.user != req.userId) {
+      const error = new Error("your are not the product owner!!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (product.pay == true) {
+      const error = new Error("product sold");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (product.approve != "disapprove") {
+      const error = new Error("bid has to be disapproved");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (imageUrl) {
+      imageUrl.forEach((f) => {
+        if (path.extname(f.path) == ".mp4") {
+          vid = f.path;
+        } else {
+          image.push(f.path);
+        }
+      });
+    }
+
+
+    if (product.catigory.form == '1') {
+      if (image.length > 0) {
+
+        product.imageUrl.forEach(i => {
+          deleteFile.deleteFile(path.join(__dirname + "/../" + i));
+
+        });
+
+        product.imageUrl = image;
+
+      }
+      if (vid) {
+
+        deleteFile.deleteFile(path.join(__dirname + "/../" + product.vidUrl));
+
+        product.vidUrl = vid;
+
+      }
+      product.helth = helth;
+      product.amount = amount;
+      product.color = color;
+      product.age = age;
+      product.desc = desc;
+      product.production = production;
+      product.size = size;
+      product.sex = sex;
+      product.adress = adress;
+      product.city = city;
+      product.price = price;
+      product.TotalPid = bidStart;
+      product.approve  = 'binding' ;
+
+      newProduct = await product.save();
+
+    } else if (product.catigory.form == '2') {
+
+      if (image.length > 0) {
+
+        product.imageUrl.forEach(i => {
+          deleteFile.deleteFile(path.join(__dirname + "/../" + i));
+
+        });
+
+        product.imageUrl = image;
+
+      }
+      if (vid) {
+
+        deleteFile.deleteFile(path.join(__dirname + "/../" + product.vidUrl));
+
+        product.vidUrl = vid;
+
+      }
+
+      product.helth = helth;
+      product.amount = amount;
+      product.color = color;
+      product.age = age;
+      product.desc = desc;
+      product.user = userId;
+      product.production = production;
+      product.size = size;
+      product.sex = sex;
+      product.adress = adress;
+      product.city = city;
+      product.price = price;
+      product.TotalPid = bidStart;
+      product.approve  = 'binding' ;
+
+
+      newProduct = await product.save();
+
+
+    } else if (product.catigory.form == '3') {
+
+      if (image.length > 0) {
+
+        product.imageUrl.forEach(i => {
+          deleteFile.deleteFile(path.join(__dirname + "/../" + i));
+
+        });
+
+        product.imageUrl = image;
+
+      }
+      if (vid) {
+
+        deleteFile.deleteFile(path.join(__dirname + "/../" + product.vidUrl));
+
+        product.vidUrl = vid;
+
+      }
+
+      product.owner = owner;
+      product.color2 = color2;
+      product.accident = accident;
+      product.colored = colored;
+      product.engineNumber = engineNumber;
+      product.sex = sex;
+      product.helth = helth;
+      product.age = age;
+      product.color = color;
+      product.Guarantee = Boolean(Number(Guarantee));
+      product.price = price;
+      product.TotalPid = bidStart;
+      product.city = city;
+      product.adress = adress;
+      product.desc = desc;
+      product.size = size;
+      product.productState = productState;
+      product.approve  = 'binding' ;
+
+
+      newProduct = await product.save();
+
+
+    }
+
+
+
+
+
+    res.status(200).json({ state: 1, message: "edited",afterEdit:newProduct });
 
   } catch (err) {
     if (!err.statusCode) {

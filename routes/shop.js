@@ -9,7 +9,9 @@ const isAuth         = require('../meddlewere/isAuth');
 
 router.post('/addProduct',[
     body('catigory')
-    .not().isEmpty()
+    .not().isEmpty(),
+    body('price')
+    .not().isEmpty(),
 ],isAuth,shopController.putProducts);
 
 router.post('/product/delete',[
@@ -43,7 +45,7 @@ router.put('/putAskProduct',isAuth,shopController.putAskProduct);
 router.get('/getAskProduct/:categoryID',isAuth,shopController.getAskProduct); 
 
 
-router.post('/putAskProductBid',isAuth,shopController.putAskProductBid); 
+router.post('/putAskProductBid',isAuth,shopController.putAskProductBid);
 
 router.post('/bid/restart',[
     body('productId')
@@ -51,5 +53,16 @@ router.post('/bid/restart',[
 ],isAuth,shopController.postRestart); 
 
 router.get('/prize',isAuth,shopController.getPrize);
+
+//edit 
+router.post('/product/edit',[
+    body('productId')
+    .not().isEmpty(),
+    body('price')
+    .not().isEmpty(),
+
+],isAuth,shopController.postEditProduct);
+
+
 
 module.exports = router;
