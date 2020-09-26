@@ -1335,7 +1335,7 @@ exports.postEditProduct = async (req, res, next) => {
       product.city = city;
       product.price = price;
       product.TotalPid = bidStart;
-      product.approve  = 'binding' ;
+      product.approve = 'binding';
 
       newProduct = await product.save();
 
@@ -1372,7 +1372,7 @@ exports.postEditProduct = async (req, res, next) => {
       product.city = city;
       product.price = price;
       product.TotalPid = bidStart;
-      product.approve  = 'binding' ;
+      product.approve = 'binding';
 
 
       newProduct = await product.save();
@@ -1415,7 +1415,7 @@ exports.postEditProduct = async (req, res, next) => {
       product.desc = desc;
       product.size = size;
       product.productState = productState;
-      product.approve  = 'binding' ;
+      product.approve = 'binding';
 
 
       newProduct = await product.save();
@@ -1427,7 +1427,129 @@ exports.postEditProduct = async (req, res, next) => {
 
 
 
-    res.status(200).json({ state: 1, message: "edited",afterEdit:newProduct });
+    res.status(200).json({ state: 1, message: "edited", afterEdit: newProduct });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+exports.postEditAskProduct = async (req, res, next) => {
+  try {
+    const desc = req.body.desc;
+    const productId = req.body.productId;
+    const city = req.body.city;
+    const age = req.body.age;
+    const sex = req.body.sex;
+    const color = req.body.color;
+    const amount = req.body.amount;
+    const helth = req.body.helth;
+    const size = req.body.size;
+    const production = req.body.production;
+    const adress = req.body.adress;
+
+    //update
+    const productState = req.body.productState;
+    const color2 = req.body.color2;
+    const engineSize = req.body.engineSize;
+    const Guarantee = req.body.Guarantee;
+
+    let newAskProduct;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    const askProduct = await AskProduct.findById(productId).populate({ path: 'catigory', select: 'form' });
+
+    if (!askProduct) {
+      const error = new Error("product not found!!..");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (askProduct.user != req.userId) {
+      const error = new Error("your are not the product owner!!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (askProduct.pay == true) {
+      const error = new Error("product sold");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (askProduct.approve != "disapprove") {
+      const error = new Error("bid has to be disapproved");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (askProduct.catigory.form == '1') {
+
+
+      askProduct.desc = desc;
+      askProduct.age = age;
+      askProduct.sex = sex;
+      askProduct.adress = adress;
+      askProduct.color = color;
+      askProduct.amount = amount;
+      askProduct.helth = helth;
+      askProduct.size = size;
+      askProduct.production = production;
+      askProduct.city = city;
+      askProduct.approve = 'binding';
+
+
+      newAskProduct = await askProduct.save();
+
+    } else if (askProduct.catigory.form == '2') {
+
+      askProduct.desc = desc;
+      askProduct.age = age;
+      askProduct.sex = sex;
+      askProduct.adress = adress;
+      askProduct.amount = amount;
+      askProduct.helth = helth;
+      askProduct.size = size;
+      askProduct.city = city;
+      askProduct.productState = productState;
+      askProduct.Guarantee = Boolean(Number(Guarantee));
+      askProduct.approve = 'binding';
+
+      newAskProduct = await askProduct.save();
+
+    } else if (askProduct.catigory.form == '3') {
+     
+    
+      askProduct.desc = desc;
+      askProduct.age = age;
+      askProduct.sex = sex;
+      askProduct.adress = adress;
+      askProduct.color = color;
+      askProduct.helth = helth;
+      askProduct.city =  city;
+      askProduct.productState = productState;
+      askProduct.color2 = color2;
+      askProduct.engineSize = engineSize;
+      askProduct.Guarantee = Boolean(Number(Guarantee));
+      askProduct.approve = 'binding';
+
+      newAskProduct = await askProduct.save();
+
+    }
+
+    res.status(201).json({ state: 1, askProduct: newAskProduct });
 
   } catch (err) {
     if (!err.statusCode) {

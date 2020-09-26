@@ -63,6 +63,11 @@ router.post('/product/edit',[
 
 ],isAuth,shopController.postEditProduct);
 
+router.post('/AskProduct/edit',[
+    body('productId')
+    .not().isEmpty(),
+],isAuth,shopController.postEditAskProduct);
+
 
 
 module.exports = router;
