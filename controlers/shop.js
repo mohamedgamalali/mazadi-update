@@ -1211,6 +1211,7 @@ exports.postEditProduct = async (req, res, next) => {
   const engineNumber = req.body.engineNumber;
   const Guarantee = req.body.Guarantee;
   const productState = req.body.productState;
+  const type = req.body.type;
 
   const price = Number(req.body.price);
   const bidStart = Number(req.body.bidStart) || 0;
@@ -1297,6 +1298,8 @@ exports.postEditProduct = async (req, res, next) => {
       product.city = city;
       product.price = price;
       product.TotalPid = bidStart;
+      product.type = type ;
+
       product.approve = 'binding';
 
       newProduct = await product.save();
@@ -1329,11 +1332,11 @@ exports.postEditProduct = async (req, res, next) => {
       product.user = userId;
       product.production = production;
       product.size = size;
-      product.sex = sex;
       product.adress = adress;
       product.city = city;
       product.price = price;
       product.TotalPid = bidStart;
+      product.type = type ;
       product.approve = 'binding';
 
 
@@ -1365,7 +1368,6 @@ exports.postEditProduct = async (req, res, next) => {
       product.accident = accident;
       product.colored = colored;
       product.engineNumber = engineNumber;
-      product.sex = sex;
       product.helth = helth;
       product.age = age;
       product.color = color;
@@ -1377,6 +1379,7 @@ exports.postEditProduct = async (req, res, next) => {
       product.desc = desc;
       product.size = size;
       product.productState = productState;
+      product.type = type ;
       product.approve = 'binding';
 
 
