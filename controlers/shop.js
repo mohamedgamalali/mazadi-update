@@ -35,7 +35,7 @@ exports.putProducts = async (req, res, next) => {
     const accident = req.body.accident;
     const colored = req.body.colored;
     const engineNumber = req.body.engineNumber;
-    const Guarantee = req.body.Guarantee;
+    const Guarantee = req.body.Guarantee || 0 ;
     const productState = req.body.productState;
     const type = req.body.type;
 
