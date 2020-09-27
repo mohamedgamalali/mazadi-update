@@ -34,6 +34,7 @@ const Ads = require("../../models/Ads");
 const Lost = require("../../models/lost");
 const Admin = require("../../models/admin");
 const Prize = require("../../models/prize");
+const UserBids = require("../../models/userBids");
 
 exports.postLogin = async (req, res, next) => {
   try {
@@ -653,17 +654,19 @@ exports.getSingleUsers = async (req, res, next) => {
     const lastBidin = await Products.find({ lastPid: id })
       .select("TotalPid imageUrl bidStatus catigory")
       .populate({ path: "catigory", select: "name" });
-    const allUserBids = await User.findById(id).select("pids").populate({
-      path: "pids.product",
+    const allUserBids = await UserBids.find({user:id}).select("product").populate({
+      path: "product",
       select: "TotalPid imageUrl bidStatus pay",
-    });
+    })
+    .sort({ createdAt: -1 });
+
     const userOrders = await AskProduct.find({ user: id })
       .select("approve catigory ended pay Bids Bids")
       .populate({ path: "catigory", select: "name" });
 
     let allUserBidsArray = [];
 
-    for (let u of allUserBids.pids) {
+    for (let u of allUserBids) {
       if (u.product) {
         allUserBidsArray.push(u);
       }

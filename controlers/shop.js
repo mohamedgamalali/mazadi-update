@@ -6,6 +6,7 @@ const User = require("../models/user");
 const Catigory = require("../models/catigory");
 const AskProduct = require("../models/askProduct");
 const Prize = require("../models/prize");
+const UserBids = require("../models/userBids");
 
 const io = require("../socket.io/socket");
 
@@ -500,7 +501,7 @@ exports.getSingleAskProduct = async (req, res, next) => {
   let bids = [];
   let owner = false;
   try {
-    const askProduct = await AskProduct.findById(prodId)
+    let askProduct = await AskProduct.findById(prodId)
       .populate({path:"catigory",select:'name form'});
 
     if (!askProduct) {
@@ -518,6 +519,12 @@ exports.getSingleAskProduct = async (req, res, next) => {
       bids = askProduct.Bids;
       owner = true;
     }
+
+    const approvedBids = askProduct.Bids.filter(ask=>{
+      return Bids.offerApprove == 'approved' ;
+    });
+    askProduct.Bids = approvedBids ;
+
 
     res.status(200).json({
       state: 1,
@@ -633,17 +640,18 @@ exports.putPid = async (req, res, next) => {
 
     product.lastPid = req.userId;
     const finalProduct = await product.save();
-    const userPid = {
-      product: prodId,
-    };
-    user.pids.forEach((p) => {
-      if (p.product == prodId) {
-        find = true;
-      }
-    });
-    if (find == false) {
-      user.pids.push(userPid);
+
+    const ifBid = await UserBids.findOne({product:finalProduct._id,user:req.userId});
+    
+    if(!ifBid){
+      const newBids = new UserBids({
+        user:user._id,
+        product:finalProduct._id
+      });
+      await newBids.save() ;
     }
+
+    user.pids = [] ;
     const userAfter = await user.save();
     if (lastUser) {
       const body = {
@@ -719,6 +727,7 @@ exports.putAskProduct = async (req, res, next) => {
     const color2 = req.body.color2;
     const engineSize = req.body.engineSize;
     const Guarantee = req.body.Guarantee;
+    const type = req.body.type;
 
     let askProduct;
 
@@ -743,6 +752,7 @@ exports.putAskProduct = async (req, res, next) => {
         production: production,
         catigory: cat._id,
         city: city,
+        type:type
       });
       askProduct = await newAskProduct.save();
     } else if (cat.form == '2') {
@@ -759,7 +769,8 @@ exports.putAskProduct = async (req, res, next) => {
         catigory: cat._id,
         city: city,
         productState: productState,
-        Guarantee: Boolean(Number(Guarantee))
+        Guarantee: Boolean(Number(Guarantee)),
+        type:type
       });
       askProduct = await newAskProduct.save();
     } else if (cat.form == '3') {
@@ -777,7 +788,8 @@ exports.putAskProduct = async (req, res, next) => {
         productState: productState,
         color2: color2,
         engineSize: engineSize,
-        Guarantee: Boolean(Number(Guarantee))
+        Guarantee: Boolean(Number(Guarantee)),
+        type:type
       });
       askProduct = await newAskProduct.save();
     }
@@ -1422,6 +1434,7 @@ exports.postEditAskProduct = async (req, res, next) => {
     const color2 = req.body.color2;
     const engineSize = req.body.engineSize;
     const Guarantee = req.body.Guarantee;
+    const type = req.body.type;
 
     let newAskProduct;
 
@@ -1473,6 +1486,7 @@ exports.postEditAskProduct = async (req, res, next) => {
       askProduct.size = size;
       askProduct.production = production;
       askProduct.city = city;
+      askProduct.type = type;
       askProduct.approve = 'binding';
 
 
@@ -1490,6 +1504,7 @@ exports.postEditAskProduct = async (req, res, next) => {
       askProduct.city = city;
       askProduct.productState = productState;
       askProduct.Guarantee = Boolean(Number(Guarantee));
+      askProduct.type = type;
       askProduct.approve = 'binding';
 
       newAskProduct = await askProduct.save();
@@ -1508,6 +1523,7 @@ exports.postEditAskProduct = async (req, res, next) => {
       askProduct.color2 = color2;
       askProduct.engineSize = engineSize;
       askProduct.Guarantee = Boolean(Number(Guarantee));
+      askProduct.type = type;
       askProduct.approve = 'binding';
 
       newAskProduct = await askProduct.save();

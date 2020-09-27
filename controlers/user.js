@@ -6,6 +6,7 @@ const User = require('../models/user');
 const Catigory = require('../models/catigory');
 const AskProduct = require('../models/askProduct');
 const Notfications = require("../models/notfication");
+const UserBids = require("../models/userBids");
 
 
 
@@ -226,38 +227,47 @@ exports.getMyBids = async (req, res, next) => {
 
     const page = req.query.page || 1;
     const productPerPage = 10;
-    let userAfterPaginate = [];
-    let count = 0;
+
     try {
-        const user = await User.findById(req.userId).select('pids.product').populate('pids.product');
-        let totalBids = user.pids.length;
-        if (!user) {
-            const error = new Error('user not found');
-            error.statusCode = 404;
-            throw error;
-        }
-        let start = (page - 1) * productPerPage;
-        let c = 0;
-        for (count = start; count < user.pids.length; count++) {
-            if (c < productPerPage) {
-                if (user.pids[count].product != null) {
-                    userAfterPaginate.push({
-                        approve: user.pids[count].product.approve,
-                        imageUrl: user.pids[count].product.imageUrl,
-                        desc: user.pids[count].product.desc,
-                        _id: user.pids[count].product._id,
-                        price: user.pids[count].product.price,
-                        TotalPid: user.pids[count].product.TotalPid
-                    });
-                } else {
-                    totalBids--;
-                }
-                c++;
-            } else {
-                break;
-            }
-        }
-        res.status(200).json({ state: 1, myBeds: userAfterPaginate, totalBids: totalBids });
+        // const user = await User.findById(req.userId).select('pids.product').populate('pids.product');
+        // let totalBids = user.pids.length;
+        // if (!user) {
+        //     const error = new Error('user not found');
+        //     error.statusCode = 404;
+        //     throw error;
+        // }
+        // let start = (page - 1) * productPerPage;
+        // let c = 0;
+        // for (count = start; count < user.pids.length; count++) {
+        //     if (c < productPerPage) {
+        //         if (user.pids[count].product != null) {
+        //             userAfterPaginate.push({
+        //                 approve: user.pids[count].product.approve,
+        //                 imageUrl: user.pids[count].product.imageUrl,
+        //                 desc: user.pids[count].product.desc,
+        //                 _id: user.pids[count].product._id,
+        //                 price: user.pids[count].product.price,
+        //                 TotalPid: user.pids[count].product.TotalPid
+        //             });
+        //         } else {
+        //             totalBids--;
+        //         }
+        //         c++;
+        //     } else {
+        //         break;
+        //     }
+        // }
+        const userBids = await UserBids.find({user:req.userId})
+        .skip((page - 1) * productPerPage)
+        .limit(productPerPage)
+        .sort({ createdAt: -1 })
+        .select('product')
+        .populate({path:'product',select:'approve imageUrl desc price TotalPid'});
+        const total = await UserBids.find({user:req.userId}).countDocuments();
+
+        res.status(200).json({ state: 1, myBeds: userBids.product, totalBids: total });
+        
+
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
