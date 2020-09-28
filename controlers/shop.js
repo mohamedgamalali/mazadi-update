@@ -823,6 +823,7 @@ exports.getAskProduct = async (req, res, next) => {
         })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (filter == "date") {
@@ -837,6 +838,7 @@ exports.getAskProduct = async (req, res, next) => {
           .sort({ createdAt: -1 })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else {
@@ -852,6 +854,7 @@ exports.getAskProduct = async (req, res, next) => {
         })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
@@ -870,6 +873,7 @@ exports.getAskProduct = async (req, res, next) => {
         })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else if (filter == "date") {
@@ -886,6 +890,7 @@ exports.getAskProduct = async (req, res, next) => {
           .sort({ createdAt: -1 })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       } else {
@@ -903,6 +908,7 @@ exports.getAskProduct = async (req, res, next) => {
         })
           .select("desc")
           .select("approve")
+          .select("adress")
           .skip((page - 1) * productPerPage)
           .limit(productPerPage);
       }
