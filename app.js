@@ -4,6 +4,8 @@ const bodyParser= require('body-parser');
 const multer    = require('multer');
 const path      = require('path');
 const admin = require("firebase-admin");
+const schedule = require('node-schedule');
+const DBManage = require('./helpers/DB-manage');
 
 require('dotenv').config();
 
@@ -68,6 +70,14 @@ admin.initializeApp({
 
   }),
 });
+
+const dailyJob = schedule.scheduleJob('DB-manage','0 0 2 * * *',async function(){
+
+  await DBManage.notfication() ;
+  await DBManage.Bids() ;
+
+});
+
 
 //routes
 const adminRout = require('./admin/routs/admin');

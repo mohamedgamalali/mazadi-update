@@ -14,6 +14,14 @@ const adminSchema = new schema({
     bid:{
         type:Boolean,
         default:false
+    },
+    startAt:{
+        type:Number,
+        default:0
+    },
+    endAt:{
+        type:Number,
+        default:0
     }
 });
 

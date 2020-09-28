@@ -198,6 +198,12 @@ router.post('/offer/approve/:action',[
   .not().isEmpty(),
 ],isAuth,adminController.postOfferApprove);
 
+router.post('/bid/time',[
+  body('startAt') 
+  .not().isEmpty(),
+  body('endAt') 
+  .not().isEmpty(),
+],isAuth,adminController.postBidTime);
 
 module.exports = router;
 

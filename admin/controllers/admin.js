@@ -2278,3 +2278,33 @@ exports.postOfferApprove = async (req, res, next) => {
     next(err);
   }
 };
+
+//bid time
+
+exports.postBidTime = async (req, res, next) => {
+  const startAt = req.body.startAt;
+  const endAt = req.body.endAt;
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    const admin = await Admin.findOne({});
+    admin.startAt = startAt ;
+    admin.endAt = endAt ;
+    
+    
+
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

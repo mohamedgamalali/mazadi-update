@@ -203,6 +203,7 @@ exports.getProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "date") {
@@ -223,6 +224,7 @@ exports.getProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "bids") {
@@ -243,6 +245,7 @@ exports.getProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else if (filter == "sold") {
@@ -256,6 +259,7 @@ exports.getProducts = async (req, res, next) => {
         .select("TotalPid")
         .select("createdAt")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     } else {
@@ -282,6 +286,7 @@ exports.getProducts = async (req, res, next) => {
         .select("size")
         .select("TotalPid")
         .select("price")
+        .select("adress")
         .skip((page - 1) * productPerPage)
         .limit(productPerPage);
     }
@@ -384,7 +389,7 @@ exports.getAllProducts = async (req, res, next) => {
         .select("imageUrl")
         .select("desc")
         .select("size")
-        .select("TotalPid")
+        .select("TotalPid") 
         .select("price")
         .select("adress")
         .skip((page - 1) * productPerPage)
