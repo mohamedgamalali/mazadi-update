@@ -265,8 +265,14 @@ exports.getMyBids = async (req, res, next) => {
         .populate({path:'product',select:'approve imageUrl desc price TotalPid'});
         const total = await UserBids.find({user:req.userId}).countDocuments();
 
-        res.status(200).json({ state: 1, myBeds: userBids.product, totalBids: total });
-        
+        let final = [] ;
+
+        userBids.forEach(i=>{
+            final.push(i.product);
+        });
+
+        res.status(200).json({ state: 1, myBeds: final, totalBids: total });
+
 
     } catch (err) {
         if (!err.statusCode) {
