@@ -513,7 +513,7 @@ exports.getSingleAskProduct = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (askProduct.approve === "binding") {
+    if (askProduct.user !== req.userId) {
       const error = new Error("product not approved by the admin");
       error.statusCode = 401;
       throw error;
