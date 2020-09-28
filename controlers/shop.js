@@ -513,7 +513,7 @@ exports.getSingleAskProduct = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (askProduct.user._id != req.userId) {
+    if (askProduct.user._id != req.userId && askProduct.approve == 'binding') {
       const error = new Error("product not approved by the admin");
       error.statusCode = 401;
       throw error;
@@ -1064,6 +1064,9 @@ exports.postDeleteProduct = async (req, res, next) => {
     user.postedProducts.pull(productId);
     await user.save();
     await catigory.save();
+    
+    await UserBids.deleteMany({product:productId}) ;
+
     res.status(201).json({ state: 1, message: "product deleted!!" });
   } catch (err) {
     if (!err.statusCode) {

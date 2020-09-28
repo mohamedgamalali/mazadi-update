@@ -907,6 +907,7 @@ exports.postDelete = async (req, res, next) => {
   let product;
   try {
     if (type == 1) {
+
       product = await Products.find({
         _id: {
           $in: id,
@@ -917,6 +918,8 @@ exports.postDelete = async (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+    await UserBids.deleteMany({product:{$in:id}}) ;
+
       product.forEach((i) => {
         if (i.pay == true) {
           const error = new Error(
