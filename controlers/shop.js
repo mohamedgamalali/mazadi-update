@@ -455,7 +455,6 @@ exports.getSingleProduct = async (req, res, next) => {
 
   try {
     const product = await Product.findById(prodId)
-      .populate({ path: "user", select: 'name' })
       .populate({ path: "catigory", select: 'name form' })
       .select('-price');
 
@@ -642,7 +641,7 @@ exports.putPid = async (req, res, next) => {
     const finalProduct = await product.save();
 
     const ifBid = await UserBids.findOne({product:finalProduct._id,user:req.userId});
-    
+
     if(!ifBid){
       const newBids = new UserBids({
         user:user._id,
