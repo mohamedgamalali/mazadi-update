@@ -205,6 +205,11 @@ router.post('/bid/time',[
   .not().isEmpty(),
 ],isAuth,adminController.postBidTime);
 
+router.post('/bid/activate',isAuth,adminController.postScadActivate);
+
+router.post('/bid/cancel',isAuth,adminController.scadCancel);
+
+
 module.exports = router;
 
 //mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority 

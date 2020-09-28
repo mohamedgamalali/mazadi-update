@@ -22,6 +22,10 @@ const adminSchema = new schema({
     endAt:{
         type:Number,
         default:0
+    },
+    schedule:{
+        type:Boolean,
+        default:false
     }
 });
 

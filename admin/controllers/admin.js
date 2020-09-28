@@ -10,6 +10,7 @@ const sendNotfication = require("../../helpers/send-notfication");
 const bidManage = require("../../helpers/bid-manage");
 const DBmanage = require("../../helpers/DB-manage");
 const ObjectId = require('mongoose').Types.ObjectId;
+const schedule = require('node-schedule');
 
 
 const transport = nodemailer.createTransport({
@@ -128,6 +129,9 @@ exports.getTest = async (req, res, next) => {
       totalAsk: ask,
       revenue: revenue,
       run: admin[0].bid,
+      schedule: admin[0].schedule,
+      startAt: admin[0].startAt,
+      endAt: admin[0].endAt,
       totalUsers: totalUsers,
     });
   } catch (err) {
@@ -654,11 +658,11 @@ exports.getSingleUsers = async (req, res, next) => {
     const lastBidin = await Products.find({ lastPid: id })
       .select("TotalPid imageUrl bidStatus catigory")
       .populate({ path: "catigory", select: "name" });
-    const allUserBids = await UserBids.find({user:id}).select("product").populate({
+    const allUserBids = await UserBids.find({ user: id }).select("product").populate({
       path: "product",
       select: "TotalPid imageUrl bidStatus pay",
     })
-    .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 });
 
     const userOrders = await AskProduct.find({ user: id })
       .select("approve catigory ended pay Bids Bids")
@@ -2071,6 +2075,7 @@ exports.init = async (req, res, next) => {
   try {
 
     await Catigory.updateMany({}, { form: '1' });
+    await Admin.updateMany({}, { startAt:0,endAt:0,schedule:false});
 
     //pids
     //await User.updateMany({},{})
@@ -2186,7 +2191,7 @@ exports.postOfferApprove = async (req, res, next) => {
   const orderId = req.body.orderId;
   const offerId = req.body.offerId;
   const action = req.params.action;
-  const adminNotes = req.body.adminNotes  ;
+  const adminNotes = req.body.adminNotes;
 
   const errors = validationResult(req);
 
@@ -2241,7 +2246,7 @@ exports.postOfferApprove = async (req, res, next) => {
         error.statusCode = 422;
         throw error;
       }
-      
+
 
       const Sbody = {
         id: order._id.toString() + " " + offerId.toString(),
@@ -2256,8 +2261,8 @@ exports.postOfferApprove = async (req, res, next) => {
         order.Bids[offerIndex].user._id,
       ]);
 
-      order.Bids[offerIndex].offerApprove   = 'disapprove';
-      order.Bids[offerIndex].offerAdminNote = adminNotes ;
+      order.Bids[offerIndex].offerApprove = 'disapprove';
+      order.Bids[offerIndex].offerAdminNote = adminNotes;
       await order.save();
 
     } else {
@@ -2295,11 +2300,121 @@ exports.postBidTime = async (req, res, next) => {
     }
 
     const admin = await Admin.findOne({});
-    admin.startAt = startAt ;
-    admin.endAt = endAt ;
-    
-    
+    admin.startAt = Number(startAt);
+    admin.endAt = Number(endAt);
 
+    await admin.save();
+
+
+
+    res.status(200).json({
+      state: 1,
+      message: 'edited'
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postScadActivate = async (req, res, next) => {
+
+  try {
+
+
+    const ad = await Admin.findOne({});
+
+    if (ad.startAt == 0 || ad.endAt == 0) {
+      const error = new Error("edit time first");
+      error.statusCode = 409;
+      throw error;
+    }
+
+    if (ad.schedule == true) {
+      const error = new Error("scad activated already");
+      error.statusCode = 403;
+      throw error;
+    }
+    ad.schedule = true ;
+    await ad.save();
+
+
+    const startAtDate = new Date(ad.startAt);
+    const endAtDate = new Date(ad.endAt);
+
+
+    const dailyJob = schedule.scheduleJob('bidStart', `0 ${startAtDate.getMinutes()} ${startAtDate.getHours()} * * *`, async function () {
+      const admin = await Admin.find({});
+
+      admin.forEach((a) => {
+        if (a.bid == true) {
+          const error = new Error("bid already started");
+          error.statusCode = 403;
+          throw error;
+        }
+        a.bid = true;
+        a.save();
+      });
+      await bidManage.startBid();
+
+    });
+
+    const dailyJob2 = schedule.scheduleJob('bidEnd', `0 ${endAtDate.getMinutes()} ${endAtDate.getHours()} * * *`, async function () {
+
+      const adminn = await Admin.find({});
+
+      adminn.forEach((a) => {
+        if (a.bid == false) {
+          const error = new Error("bid already ended");
+          error.statusCode = 403;
+          throw error;
+        }
+        a.bid = false;
+        a.save();
+      });
+
+      await bidManage.endBid();
+
+    });
+
+
+    res.status(200).json({
+      state: 1,
+      message: 'activated'
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.scadCancel = async (req, res, next) => {
+
+  try {
+
+
+    const startScad = schedule.scheduledJobs['bidStart'];
+    const endScad   = schedule.scheduledJobs['bidEnd'];
+
+    startScad.cancel();
+    endScad.cancel();
+
+    const ad = await Admin.findOne({}) ;
+
+    ad.schedule = false ;
+    await ad.save();
+
+
+    res.status(200).json({
+      state: 1,
+      message: 'canceld'
+    });
 
   } catch (err) {
     if (!err.statusCode) {
