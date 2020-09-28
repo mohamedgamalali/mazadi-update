@@ -209,6 +209,12 @@ router.post('/bid/activate',isAuth,adminController.postScadActivate);
 
 router.post('/bid/cancel',isAuth,adminController.scadCancel);
 
+router.post('/support/category/hide',[
+  body('catId') 
+  .not().isEmpty(),
+],isAuth,adminController.postHideCat);
+
+
 
 module.exports = router;
 

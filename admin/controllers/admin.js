@@ -2077,7 +2077,7 @@ exports.init = async (req, res, next) => {
 
   try {
 
-    await Catigory.updateMany({}, { form: '1' });
+    await Catigory.updateMany({}, { form: '1',hide:false });
     await Admin.updateMany({}, { startAt:0,endAt:0,schedule:false});
 
     //pids
@@ -2417,6 +2417,46 @@ exports.scadCancel = async (req, res, next) => {
     res.status(200).json({
       state: 1,
       message: 'canceld'
+    });
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.postHideCat = async (req, res, next) => {
+
+  const catId = req.body.catId ;
+
+  const errors = validationResult(req);
+
+  try {
+    if (!errors.isEmpty()) {
+      const error = new Error("validation faild");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+
+    const cat = await Catigory.findById(catId) ;
+
+    if(!cat){
+      const error = new Error("category not found");
+      error.statusCode = 422;
+      throw error;
+    }
+
+    cat.hide = true ;
+
+    await cat.save() ;
+
+    res.status(200).json({
+      state:1,
+      message:'hidden'
     });
 
   } catch (err) {

@@ -19,6 +19,10 @@ const catigorySchema = new schema({
         type:String,
         default:'1',
         enum:['1','2','3']
+    },
+    hide:{
+        type:Boolean,
+        default:false
     }
 });
 

@@ -411,8 +411,8 @@ exports.getCatigory = async (req, res, next) => {
   try {
     let totalProducts = [];
     const totalOrders = [];
-    const catigories = await Catigory.find({}).select({ products: 0 });
-    const users = await User.find({}).countDocuments();
+    const catigories = await Catigory.find({hide:{$ne:true}}).select({ products: 0 });
+    const users      = await User.find({}).countDocuments();
 
     if (catigories.length === 0) {
       const error = new Error("no catigory found!!..");
