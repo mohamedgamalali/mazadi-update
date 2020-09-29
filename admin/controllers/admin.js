@@ -589,7 +589,7 @@ exports.getSingleAsk = async (req, res, next) => {
     const id = req.params.id;
     const product = await AskProduct.findById(id)
       .populate({ path: "user", select: "name mobile email" })
-      .populate({ path: "catigory", select: "name" });
+      .populate({ path: "catigory", select: "name form" });
     if (!product) {
       const error = new Error("order not found");
       error.statusCode = 404;
