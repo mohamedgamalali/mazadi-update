@@ -2112,7 +2112,7 @@ exports.getOffers = async (req, res, next) => {
       .select('Bids');
 
     askProduct.forEach(i => {
-      offers = i.Bids.filter(element => {
+      offers = i.Bids.map(element => {
         if (element.offerApprove === 'binding') {
           return {
             order_id: i._id,
