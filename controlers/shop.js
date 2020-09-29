@@ -535,7 +535,7 @@ exports.getSingleAskProduct = async (req, res, next) => {
     }
 
     const approvedBids = askProduct.Bids.filter(ask=>{
-      return Bids.offerApprove == 'approved' ;
+      return ask.offerApprove == 'approved' ;
     });
     askProduct.Bids = approvedBids ;
 
