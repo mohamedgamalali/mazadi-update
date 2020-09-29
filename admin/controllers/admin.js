@@ -2113,12 +2113,14 @@ exports.getOffers = async (req, res, next) => {
       .select('Bids');
 
     askProduct.forEach(i => {
-      offers = i.Bids.map(element => {
+      i.Bids.map(element => {
+
         if (element.offerApprove === 'binding') {
-          return {
+          offers.push({
             order_id: i._id,
             element
-          }
+          });
+
         }
       });
     });
