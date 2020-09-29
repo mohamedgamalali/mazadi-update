@@ -421,7 +421,7 @@ exports.getSingleProduct = async (req, res, next) => {
     const id = req.params.id;
     const product = await Products.findById(id)
       .populate({ path: "user", select: "name mobile email" })
-      .populate({ path: "catigory", select: "name" })
+      .populate({ path: "catigory", select: "name form" })
       .populate({ path: "bidArray.user", select: "name mobile email" });
     if (!product) {
       const error = new Error("product not found");
