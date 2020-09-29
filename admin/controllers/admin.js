@@ -2109,6 +2109,7 @@ exports.getOffers = async (req, res, next) => {
   try {
     const askProduct = await AskProduct.find({ approve: 'approved', Bids: { $elemMatch: { offerApprove: 'binding' } } })
       .sort({ createdAt: -1 })
+      .populate({path:'Bids.user',select:'name'})
       .select('Bids');
 
     askProduct.forEach(i => {
