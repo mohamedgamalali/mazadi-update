@@ -187,7 +187,7 @@ exports.getFaQ = async (req, res, next) => {
 
 exports.getCatigory = async (req, res, next) => {
   try {
-    const catigory = await Catigory.find({}).select("name imageUrl");
+    const catigory = await Catigory.find({}).select("name imageUrl form hide");
 
     res.status(200).json({
       state: 1,
