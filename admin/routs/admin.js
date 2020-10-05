@@ -218,7 +218,8 @@ router.post('/support/category/hide',[
 
 module.exports = router;
 
-//mongodb+srv://mohamed:gamal@cluster0-puljc.mongodb.net/animalStore
+//mongodb+srv://mazadi_mazadi:hr2cYjlNsQl2BMVu@cluster0-quynb.mongodb.net/mazadi?retryWrites=true&w=majority 
+
 
 
 
