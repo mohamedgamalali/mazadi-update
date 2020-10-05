@@ -2410,8 +2410,8 @@ exports.scadCancel = async (req, res, next) => {
     
     if(startScad){
       startScad.cancel();
-
     }
+    
     if(endScad){
       endScad.cancel();
     }
