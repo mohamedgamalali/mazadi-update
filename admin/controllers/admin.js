@@ -2407,9 +2407,15 @@ exports.scadCancel = async (req, res, next) => {
 
     const startScad = schedule.scheduledJobs['bidStart'];
     const endScad   = schedule.scheduledJobs['bidEnd'];
+    
+    if(startScad){
+      startScad.cancel();
 
-    startScad.cancel();
-    endScad.cancel();
+    }
+    if(endScad){
+      endScad.cancel();
+    }
+
 
     const ad = await Admin.findOne({}) ;
 
