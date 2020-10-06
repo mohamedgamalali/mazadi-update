@@ -12,11 +12,11 @@ exports.startBid = async ()=>{
             const body = {
                 id: ' ',
                 key:'4',
-                data:'تم بدء المزاد'
+                data:'نبدا المزاد ونقول بسم الله'
             };
             const notfi= {
-                title:`تم بدء المزاد`,
-                body:'يمكنك الان المزايده على اي منتج'
+                title:`نبدا المزاد ونقول بسم الله`,
+                body:'عطو المنتجات حقها وان شاء الله مارح يقصرون ملاكها'
             };
             const n = await sendNotfication.sendAll(body,notfi);
             
@@ -82,8 +82,8 @@ exports.endBid = async ()=>{
                 data:'تم انتهاء المزاد'
             };
             const notfi= {
-                title:`تم انتهاء المزاد`,
-                body:'سيتم فتح المزاد غداَ'
+                title:`انتهى المزاد وانتظرونا غدا`,
+                body:'دقايق ورح يبارك التطبيق للاعضاء اللي فازو معانا والله يعوض البايع واللي ما حالفه الحظ بالافضل'
             };
             const n = sendNotfication.sendAll(body,notfi);
                     
