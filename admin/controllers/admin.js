@@ -1657,7 +1657,7 @@ exports.postBlock = async (req, res, next) => {
   }
 };
 
-exports.getSearch = async (req, res, next) => {
+exports.getSearch = async (req, res, next) => { 
   const search = req.query.search;
   const type = req.query.type || "product";
   const page = req.query.page || 1;
@@ -1668,11 +1668,14 @@ exports.getSearch = async (req, res, next) => {
   let searchQuiry;
   let isId = false;
   try {
-    const searchId = new ObjectId(search.toString());
+    // const searchId = new ObjectId(search.toString());
 
-    if (searchId == search) {
-      isId = true;
-    }
+    // if (searchId == search) {
+    //   isId = true;
+    // }
+    
+    isId = ObjectId.isValid(search.toString()) ;
+
 
     if (type == "product" || type == "order") {
       if (!isId) {
@@ -1699,7 +1702,7 @@ exports.getSearch = async (req, res, next) => {
         }
       } else {
         searchQuiry = [
-          { _id: searchId }
+          { _id: new ObjectId(search) }
         ];
       }
 

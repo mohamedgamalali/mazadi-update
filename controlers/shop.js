@@ -469,7 +469,7 @@ exports.getSingleProduct = async (req, res, next) => {
   let fev = false;
 
   try {
-    const product = await Product.findById(prodId)
+    const product = await Product.findById(prodId).lean()
       .populate({ path: "catigory", select: 'name form' })
       .select('-price');
 
@@ -499,7 +499,10 @@ exports.getSingleProduct = async (req, res, next) => {
     }
     res.status(200).json({
       state: 1,
-      product,
+      product:{
+        ...product,
+        lastBid:product.lastPid
+      },
       fev: fev
     });
   } catch (err) {
